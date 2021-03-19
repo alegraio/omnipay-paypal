@@ -7,50 +7,17 @@ namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Exception\InvalidResponseException;
 
-/**
- * PayPal Abstract REST Request
- *
- * This class forms the base class for PayPal REST requests via the PayPal REST APIs.
- *
- * A complete REST operation is formed by combining an HTTP method (or “verb”) with
- * the full URI to the resource you’re addressing. For example, here is the operation
- * to create a new payment:
- *
- * <code>
- * POST https://api.paypal.com/v1/payments/payment
- * </code>
- *
- * To create a complete request, combine the operation with the appropriate HTTP headers
- * and any required JSON payload.
- *
- * @link https://developer.paypal.com/docs/api/
- * @link https://devtools-paypal.com/integrationwizard/
- * @link http://paypal.github.io/sdk/
- * @see Omnipay\PayPal\RestGateway
- */
+
 abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest
 {
-    const API_VERSION = 'v1';
+    const API_VERSION = 'v2';
 
     /**
-     * Sandbox Endpoint URL
-     *
-     * The PayPal REST APIs are supported in two environments. Use the Sandbox environment
-     * for testing purposes, then move to the live environment for production processing.
-     * When testing, generate an access token with your test credentials to make calls to
-     * the Sandbox URIs. When you’re set to go live, use the live credentials assigned to
-     * your app to generate a new access token to be used with the live URIs.
-     *
      * @var string URL
      */
     protected $testEndpoint = 'https://api.sandbox.paypal.com';
 
     /**
-     * Live Endpoint URL
-     *
-     * When you’re set to go live, use the live credentials assigned to
-     * your app to generate a new access token to be used with the live URIs.
-     *
      * @var string URL
      */
     protected $liveEndpoint = 'https://api.paypal.com';
@@ -85,34 +52,76 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
         $this->referrerCode = $referrerCode;
     }
 
+    /**
+     * @return string
+     */
     public function getClientId()
     {
         return $this->getParameter('clientId');
     }
 
+    /**
+     * @param string $value
+     */
     public function setClientId($value)
     {
         return $this->setParameter('clientId', $value);
     }
 
+    /**
+     * @return string
+     */
     public function getSecret()
     {
         return $this->getParameter('secret');
     }
 
+    /**
+     * @param string $value
+     */
     public function setSecret($value)
     {
         return $this->setParameter('secret', $value);
     }
 
-    public function getToken()
+
+    /**
+     * @return bool
+     */
+    public function getAutoToken()
     {
-        return $this->getParameter('token');
+        return $this->getParameter('autoToken') ?: true;
     }
 
+    /**
+     * @param bool $value
+     */
+    public function setAutoToken($value)
+    {
+        return $this->setParameter('autoToken', $value);
+    }
+
+
+    /**
+     * @param string $value
+     */
     public function setToken($value)
     {
-        return $this->setParameter('token', $value);
+        return $this->setParameter('token',$value);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getToken()
+    {
+        if($this->getParameter('autoToken')){
+            $clientid = $this->getParameter("clientId");
+            $secret   = $this->getParameter("secret");
+            $this->setParameter("token", base64_encode($clientid . ":" . $secret));
+        }
+            return $this->getParameter('token');
     }
 
     public function getPayerId()
@@ -126,10 +135,6 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
     }
 
     /**
-     * Get HTTP Method.
-     *
-     * This is nearly always POST but can be over-ridden in sub classes.
-     *
      * @return string
      */
     protected function getHttpMethod()
@@ -143,11 +148,18 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
         return $base . '/' . self::API_VERSION;
     }
 
+    public function getAuthorization()
+    {
+        if($this->getAutoToken()){
+            return 'Basic '.$this->getToken();
+        }
+        return 'Bearer '.$this->getToken();
+    }
+
+    
     public function sendData($data)
     {
 
-        // Guzzle HTTP Client createRequest does funny things when a GET request
-        // has attached data, so don't send the data if the method is GET.
         if ($this->getHttpMethod() == 'GET') {
             $requestUrl = $this->getEndpoint() . '?' . http_build_query($data);
             $body = null;
@@ -156,20 +168,16 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
             $requestUrl = $this->getEndpoint();
         }
 
-        // Might be useful to have some debug code here, PayPal especially can be
-        // a bit fussy about data formats and ordering.  Perhaps hook to whatever
-        // logging engine is being used.
-        // echo "Data == " . json_encode($data) . "\n";
-
         try {
             $httpResponse = $this->httpClient->request(
                 $this->getHttpMethod(),
                 $this->getEndpoint(),
                 array(
-                    'Accept' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->getToken(),
-                    'Content-type' => 'application/json',
+                    'Accept'                        => 'application/json',
+                    'Authorization'                 => $this->getAuthorization(),
+                    'Content-type'                  => 'application/json',
                     'PayPal-Partner-Attribution-Id' => $this->getReferrerCode(),
+                    'prefer'                        =>'return=representation'
                 ),
                 $body
             );
