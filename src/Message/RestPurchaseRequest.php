@@ -1,4 +1,5 @@
 <?php
+
 namespace Omnipay\PayPal\Message;
 
 class RestPurchaseRequest extends RestAuthorizeRequest

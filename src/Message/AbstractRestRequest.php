@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PayPal Abstract REST Request
  */
@@ -35,7 +36,7 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      * @var bool
      */
     protected $negativeAmountAllowed = true;
-    
+
     /**
      * @return string
      */
@@ -103,26 +104,26 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
 
 
     /**
-     * @param string $value
-     */
-    public function setToken($value)
-    {
-        return $this->setParameter('token',$value);
-    }
-
-
-    /**
      * @return string
      */
     public function getToken()
     {
-        if($this->getParameter('autoToken')){
+        if ($this->getParameter('autoToken')) {
             $clientid = $this->getParameter("clientId");
             $secret   = $this->getParameter("secret");
             $this->setParameter("token", base64_encode($clientid . ":" . $secret));
         }
-            return $this->getParameter('token');
+        return $this->getParameter('token');
     }
+
+    /**
+     * @param string $value
+     */
+    public function setToken($value)
+    {
+        return $this->setParameter('token', $value);
+    }
+
 
     public function getPayerId()
     {
@@ -150,13 +151,13 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
 
     public function getAuthorization()
     {
-        if($this->getAutoToken()){
-            return 'Basic '.$this->getToken();
+        if ($this->getAutoToken()) {
+            return 'Basic ' . $this->getToken();
         }
-        return 'Bearer '.$this->getToken();
+        return 'Bearer ' . $this->getToken();
     }
 
-    
+
     public function sendData($data)
     {
 
@@ -177,7 +178,7 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
                     'Authorization'                 => $this->getAuthorization(),
                     'Content-type'                  => 'application/json',
                     'PayPal-Partner-Attribution-Id' => $this->getReferrerCode(),
-                    'prefer'                        =>'return=representation'
+                    'prefer'                        => 'return=representation'
                 ),
                 $body
             );

@@ -25,41 +25,6 @@ class RestGateway extends AbstractGateway
         );
     }
 
-    /**
-     *
-     * @return string
-     */
-    public function getClientId()
-    {
-        return $this->getParameter('clientId');
-    }
-
-    /**
-     * @param string $value
-     * @return RestGateway provides a fluent interface
-     */
-    public function setClientId($value)
-    {
-        return $this->setParameter('clientId', $value);
-    }
-
-    /**
-     * @return string
-     */
-    public function getSecret()
-    {
-        return $this->getParameter('secret');
-    }
-
-    /**
-     * @param string $value
-     * @return RestGateway provides a fluent interface
-     */
-    public function setSecret($value)
-    {
-        return $this->setParameter('secret', $value);
-    }
-
     //
     // Payments -- Create payments or get details of one or more payments.
     //

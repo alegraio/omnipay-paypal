@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PayPal REST Response
  */
@@ -54,7 +55,7 @@ class RestResponse extends AbstractResponse
         if (isset($this->data['message'])) {
             return $this->data['message'];
         }
-        
+
         return null;
     }
 

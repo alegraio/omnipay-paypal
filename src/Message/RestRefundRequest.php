@@ -35,5 +35,4 @@ class RestRefundRequest extends AbstractRestRequest
     {
         return parent::getEndpoint() . '/payments/captures/' . $this->getCaptureId() . '/refund';
     }
-
 }
