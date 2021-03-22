@@ -20,4 +20,19 @@ class RestCompletePurchaseRequest extends AbstractRestRequest
     {
         return parent::getEndpoint() . '/checkout/orders/' . $this->getOrderId() . '/capture';
     }
+
+    public function getSensitiveData(): array
+    {
+        return [];
+    }
+
+    public function getProcessName(): string
+    {
+        return 'CompletePurchase';
+    }
+
+    public function getProcessType(): string
+    {
+        return 'CAPTURE';
+    }
 }

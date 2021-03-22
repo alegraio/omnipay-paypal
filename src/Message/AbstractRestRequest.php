@@ -8,9 +8,10 @@ namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Exception\InvalidResponseException;
 use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\PayPal\Mask;
 
 
-abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest
+abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest implements RequestInterface
 {
     const API_VERSION = 'v2';
 
@@ -38,12 +39,14 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      */
     protected $negativeAmountAllowed = true;
 
+    private $requestParams = [];
+
     /**
-     * @return string
+     * @return string|null
      */
-    public function getReferrerCode()
+    public function getReferrerCode(): ?string
     {
-        return $this->referrerCode;
+        return $this->getParameter('referrerCode');
     }
 
     /**
@@ -51,7 +54,7 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      */
     public function setReferrerCode($referrerCode)
     {
-        $this->referrerCode = $referrerCode;
+        $this->setParameter('referrerCode', $referrerCode);
     }
 
     /**
@@ -125,7 +128,8 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      */
     public function getToken()
     {
-        if ($this->getParameter('autoToken')) {
+        $autoToken = $this->getParameter('autoToken') ?: true;
+        if ($autoToken) {
             $clientid = $this->getParameter("clientId");
             $secret   = $this->getParameter("secret");
             $this->setParameter("token", base64_encode($clientid . ":" . $secret));
@@ -205,8 +209,8 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
                 $body
             );
             // Empty response body should be parsed also as and empty array
-            $body = (string) $httpResponse->getBody()->getContents();
-            $jsonToArrayResponse = !empty($body) ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : array();
+            $response = (string) $httpResponse->getBody()->getContents();
+            $jsonToArrayResponse = !empty($response) ? json_decode($response, true, 512, JSON_THROW_ON_ERROR) : array();
             return $this->response = $this->createResponse($jsonToArrayResponse, $httpResponse->getStatusCode());
         } catch (\Exception $e) {
             throw new InvalidResponseException(
@@ -237,8 +241,48 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
         return str_replace('\\/', '/', json_encode($data, JSON_THROW_ON_ERROR | $options));
     }
 
+    /**
+     * @param array $data
+     */
+    protected function setRequestParams(array $data): void
+    {
+        array_walk_recursive($data, [$this, 'updateValue']);
+        $this->requestParams = $data;
+    }
+
+    /**
+     * @param string $data
+     * @param string $key
+     */
+    protected function updateValue(string &$data, string $key): void
+    {
+        $sensitiveData = $this->getSensitiveData();
+
+        if (\in_array($key, $sensitiveData, true)) {
+            $data = Mask::mask($data);
+        }
+
+    }
+
+    /**
+     * @return array
+     */
+    protected function getRequestParams(): array
+    {
+        return [
+            'url' => $this->getEndPoint(),
+            'type' => $this->getProcessType(),
+            'data' => $this->requestParams,
+            'method' => $this->getHttpMethod()
+        ];
+    }
+
     protected function createResponse($data, $statusCode)
     {
-        return $this->response = new RestResponse($this, $data, $statusCode);
+        $response = new RestResponse($this, $data, $statusCode);
+        $requestParams = $this->getRequestParams();
+        $response->setServiceRequestParams($requestParams);
+        $this->response = $response;
+        return $this->response;
     }
 }

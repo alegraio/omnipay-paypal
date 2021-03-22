@@ -27,7 +27,7 @@ class RestAuthorizeRequest extends AbstractRestRequest
                 )
             )
         );
-
+        $subTotalAmount = 0.00;
         /** @var ItemBag $items */
         $items = $this->getItems();
         if ($items) {
@@ -45,7 +45,12 @@ class RestAuthorizeRequest extends AbstractRestRequest
                         'currency_code' => $this->getCurrency(),
                     ),
                 );
+                $subTotalAmount += (float)$item->getPrice() * (float)$item->getQuantity();
             }
+            $data['purchase_units'][0]['amount']['breakdown']['item_total'] = [
+                'currency_code' => $this->getCurrency(),
+                'value' => (string)$subTotalAmount
+            ];
             $data['purchase_units'][0]['items'] = $itemList;
         }
 
@@ -56,7 +61,7 @@ class RestAuthorizeRequest extends AbstractRestRequest
             'return_url'  => $this->getReturnUrl(),
             'cancel_url'  => $this->getCancelUrl(),
         );
-
+        $this->setRequestParams($data);
         return $data;
     }
 
@@ -73,8 +78,18 @@ class RestAuthorizeRequest extends AbstractRestRequest
         return parent::getEndpoint() . '/checkout/orders';
     }
 
-    protected function createResponse($data, $statusCode)
+    public function getSensitiveData(): array
     {
-        return $this->response = new RestResponse($this, $data, $statusCode);
+        return [];
+    }
+
+    public function getProcessName(): string
+    {
+        return 'Authorize';
+    }
+
+    public function getProcessType(): string
+    {
+        return 'AUTHORIZE';
     }
 }

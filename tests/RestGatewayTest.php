@@ -29,31 +29,40 @@ class RestGatewayTest extends GatewayTestCase
                 'name' => 'product1',
                 'description' => 'desc1',
                 'quantity' => 1,
-                'price' => 1,
+                'price' => 1.2,
                 'currency' => 'USD'
             ],
             [
                 'name' => 'product2',
                 'description' => 'desc2',
-                'quantity' => 1,
-                'price' => 1,
+                'quantity' => 2,
+                'price' => 1.4,
+                'currency' => 'USD'
+            ],
+            [
+                'name' => 'product3',
+                'description' => 'desc3',
+                'quantity' => 3,
+                'price' => 0.7,
                 'currency' => 'USD'
             ]
         ];
         $params = [
             'description' => '',
-            'amount' => 2.00,
+            'amount' => 6.1,
             'currency' => 'USD',
             'orderId' => '12345678',
             'items' => $items,
             'returnUrl' => 'https://return.paypaltest.com?op=return',
             'cancelUrl' => 'https://return.paypaltest.com?op=cancel',
+            'referrerCode' => 'trialOrder1'
         ];
         $request = $this->gateway->purchase($params);
 
         /*$response = $request->send();
-        $response->isSuccessful();
-        $response->getData();*/
+        $isSuccessful = $response->isSuccessful();
+        $data = $response->getData();
+        var_dump($isSuccessful, $data);*/
 
         self::assertEquals('CAPTURE', $request->getData()['intent']);
     }

@@ -17,4 +17,18 @@ class RestPurchaseRequest extends RestAuthorizeRequest
         $data['intent'] = 'CAPTURE';
         return $data;
     }
+    public function getSensitiveData(): array
+    {
+        return [];
+    }
+
+    public function getProcessName(): string
+    {
+        return 'Purchase';
+    }
+
+    public function getProcessType(): string
+    {
+        return 'CAPTURE';
+    }
 }

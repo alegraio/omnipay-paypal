@@ -37,6 +37,21 @@ class RestRefundRequest extends AbstractRestRequest
         throw new \RuntimeException('Amount can not be smaller than zero');
     }
 
+    public function getSensitiveData(): array
+    {
+        return [];
+    }
+
+    public function getProcessName(): string
+    {
+        return 'Refund';
+    }
+
+    public function getProcessType(): string
+    {
+        return 'REFUND';
+    }
+
     public function getEndpoint()
     {
         return parent::getEndpoint() . '/payments/captures/' . $this->getCaptureId() . '/refund';

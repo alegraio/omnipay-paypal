@@ -15,6 +15,7 @@ use Omnipay\Common\Message\RequestInterface;
 class RestResponse extends AbstractResponse
 {
     protected $statusCode;
+    private $serviceRequestParams = [];
 
     public function __construct(RequestInterface $request, $data, $statusCode = 200)
     {
@@ -57,6 +58,14 @@ class RestResponse extends AbstractResponse
         }
 
         return null;
+    }
+
+    /**
+     * @param array $serviceRequestParams
+     */
+    public function setServiceRequestParams(array $serviceRequestParams): void
+    {
+        $this->serviceRequestParams = $serviceRequestParams;
     }
 
     public function getCode()
