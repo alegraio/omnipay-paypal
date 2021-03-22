@@ -7,6 +7,7 @@
 namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Exception\InvalidResponseException;
+use Omnipay\Common\Message\ResponseInterface;
 
 
 abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest
@@ -85,6 +86,22 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
         return $this->setParameter('secret', $value);
     }
 
+    /**
+     * @return string|null
+     */
+    public function getOrderId(): ?string
+    {
+        return $this->getParameter('orderId');
+    }
+
+    /**
+     * @param string|null $orderId
+     * @return AbstractRestRequest
+     */
+    public function setOrderId(string $orderId=null)
+    {
+        return $this->setParameter('orderId', $orderId);
+    }
 
     /**
      * @return bool
@@ -158,10 +175,15 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
     }
 
 
+    /**
+     * @param mixed $data
+     * @return ResponseInterface|RestResponse
+     * @throws InvalidResponseException
+     */
     public function sendData($data)
     {
 
-        if ($this->getHttpMethod() == 'GET') {
+        if ($this->getHttpMethod() === 'GET') {
             $requestUrl = $this->getEndpoint() . '?' . http_build_query($data);
             $body = null;
         } else {
@@ -172,19 +194,19 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
         try {
             $httpResponse = $this->httpClient->request(
                 $this->getHttpMethod(),
-                $this->getEndpoint(),
+                $requestUrl,
                 array(
                     'Accept'                        => 'application/json',
                     'Authorization'                 => $this->getAuthorization(),
                     'Content-type'                  => 'application/json',
                     'PayPal-Partner-Attribution-Id' => $this->getReferrerCode(),
-                    'prefer'                        => 'return=representation'
+                    'Prefer'                        => 'return=representation'
                 ),
                 $body
             );
             // Empty response body should be parsed also as and empty array
             $body = (string) $httpResponse->getBody()->getContents();
-            $jsonToArrayResponse = !empty($body) ? json_decode($body, true) : array();
+            $jsonToArrayResponse = !empty($body) ? json_decode($body, true, 512, JSON_THROW_ON_ERROR) : array();
             return $this->response = $this->createResponse($jsonToArrayResponse, $httpResponse->getStatusCode());
         } catch (\Exception $e) {
             throw new InvalidResponseException(
@@ -204,15 +226,15 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      * @param int $options http://php.net/manual/en/json.constants.php
      * @return string
      */
-    public function toJSON($data, $options = 0)
+    public function toJSON($data, $options = 0): string
     {
         // Because of PHP Version 5.3, we cannot use JSON_UNESCAPED_SLASHES option
         // Instead we would use the str_replace command for now.
         // TODO: Replace this code with return json_encode($this->toArray(), $options | 64); once we support PHP >= 5.4
-        if (version_compare(phpversion(), '5.4.0', '>=') === true) {
-            return json_encode($data, $options | 64);
+        if (PHP_VERSION_ID >= 50400 === true) {
+            return json_encode($data, JSON_THROW_ON_ERROR | $options | 64);
         }
-        return str_replace('\\/', '/', json_encode($data, $options));
+        return str_replace('\\/', '/', json_encode($data, JSON_THROW_ON_ERROR | $options));
     }
 
     protected function createResponse($data, $statusCode)

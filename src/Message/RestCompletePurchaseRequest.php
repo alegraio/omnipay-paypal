@@ -2,26 +2,21 @@
 
 namespace Omnipay\PayPal\Message;
 
+use Omnipay\Common\Exception\InvalidRequestException;
+
 class RestCompletePurchaseRequest extends AbstractRestRequest
 {
-    public function getOrderId()
-    {
-        return $this->getParameter('orderId');
-    }
-
-    public function setOrderId($text)
-    {
-        $this->setParameter("orderId", $text);
-        return $this;
-    }
-
-    public function getData()
+    /**
+     * @return array
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
     {
         $this->validate('orderId');
-        return null;
+        return [];
     }
 
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
         return parent::getEndpoint() . '/checkout/orders/' . $this->getOrderId() . '/capture';
     }

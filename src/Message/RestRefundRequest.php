@@ -2,6 +2,8 @@
 
 namespace Omnipay\PayPal\Message;
 
+use Omnipay\Common\Exception\InvalidRequestException;
+
 class RestRefundRequest extends AbstractRestRequest
 {
 
@@ -15,7 +17,11 @@ class RestRefundRequest extends AbstractRestRequest
         return $this->getParameter("capture_id");
     }
 
-    public function getData()
+    /**
+     * @return array
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
     {
         if ($this->getAmount() > 0) {
             return array(
@@ -26,9 +32,9 @@ class RestRefundRequest extends AbstractRestRequest
                 "invoice_id"    => $this->getTransactionId(),
                 'note_to_payer' => $this->getDescription(),
             );
-        } else {
-            return new \stdClass();
         }
+
+        throw new \RuntimeException('Amount can not be smaller than zero');
     }
 
     public function getEndpoint()

@@ -2,9 +2,17 @@
 
 namespace Omnipay\PayPal\Message;
 
+use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Item;
+use Omnipay\Common\ItemBag;
+
 class RestAuthorizeRequest extends AbstractRestRequest
 {
-    public function getData()
+    /**
+     * @return array
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
     {
         $data  = array(
             'intent'                => 'AUTHORIZE',
@@ -15,14 +23,18 @@ class RestAuthorizeRequest extends AbstractRestRequest
                         'value'         => $this->getAmount(),
                         'currency_code' => $this->getCurrency(),
                     ),
-                    'invoice_id' => $this->getTransactionId(),
+                    'invoice_id' => $this->getOrderId(),
                 )
             )
         );
 
+        /** @var ItemBag $items */
         $items = $this->getItems();
         if ($items) {
             $itemList = array();
+            /**
+             * @var  Item $item
+             */
             foreach ($items as $n => $item) {
                 $itemList[] = array(
                     'name'        => $item->getName(),
@@ -49,17 +61,11 @@ class RestAuthorizeRequest extends AbstractRestRequest
     }
 
 
-    public function getDescription()
+    public function getDescription(): string
     {
         $id   = $this->getTransactionId();
         $desc = parent::getDescription();
-        if (empty($id)) {
-            return $desc;
-        } elseif (empty($desc)) {
-            return $id;
-        } else {
-            return "$id : $desc";
-        }
+        return $desc ?? $id ?? '';
     }
 
     protected function getEndpoint()
@@ -69,6 +75,6 @@ class RestAuthorizeRequest extends AbstractRestRequest
 
     protected function createResponse($data, $statusCode)
     {
-        return $this->response = new Response($this, $data, $statusCode);
+        return $this->response = new RestResponse($this, $data, $statusCode);
     }
 }

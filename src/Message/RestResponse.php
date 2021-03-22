@@ -22,12 +22,12 @@ class RestResponse extends AbstractResponse
         $this->statusCode = $statusCode;
     }
 
-    public function isSuccessful()
+    public function isSuccessful(): bool
     {
         return empty($this->data['error']) && $this->getCode() < 400;
     }
 
-    public function getTransactionReference()
+    public function getTransactionReference(): ?string
     {
         // This is usually correct for payments, authorizations, etc
         if (!empty($this->data['transactions']) && !empty($this->data['transactions'][0]['related_resources'])) {
@@ -46,7 +46,7 @@ class RestResponse extends AbstractResponse
         return null;
     }
 
-    public function getMessage()
+    public function getMessage(): ?string
     {
         if (isset($this->data['error_description'])) {
             return $this->data['error_description'];
@@ -62,12 +62,5 @@ class RestResponse extends AbstractResponse
     public function getCode()
     {
         return $this->statusCode;
-    }
-
-    public function getCardReference()
-    {
-        if (isset($this->data['id'])) {
-            return $this->data['id'];
-        }
     }
 }

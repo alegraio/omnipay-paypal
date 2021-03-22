@@ -2,10 +2,16 @@
 
 namespace Omnipay\PayPal\Message;
 
+use Omnipay\Common\Exception\InvalidRequestException;
+
 class RestPurchaseRequest extends RestAuthorizeRequest
 {
 
-    public function getData()
+    /**
+     * @return array
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
     {
         $data           = parent::getData();
         $data['intent'] = 'CAPTURE';

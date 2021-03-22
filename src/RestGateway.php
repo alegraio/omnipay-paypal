@@ -1,13 +1,27 @@
 <?php
 /**
- * PayPal Pro Class using REST API
+ * PayPal REST API
  */
 
 namespace Omnipay\PayPal;
 
 use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
+use Omnipay\PayPal\Message\RestPurchaseRequest;
+use Omnipay\PayPal\Message\RestRefundRequest;
 
-
+/**
+ * @method \Omnipay\Common\Message\RequestInterface authorize(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface completeAuthorize(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface capture(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface void(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface createCard(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface updateCard(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface deleteCard(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface fetchTransaction(array $options = [])
+ * @method \Omnipay\Common\Message\NotificationInterface acceptNotification(array $options = array())
+ */
 class RestGateway extends AbstractGateway
 {
 
@@ -23,6 +37,38 @@ class RestGateway extends AbstractGateway
             'secret'       => '',
             'testMode'     => false,
         );
+    }
+
+    /**
+     * @param string $clientId
+     */
+    public function setClientId(string $clientId): void
+    {
+        $this->setParameter('clientId', $clientId);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getClientId(): ?string
+    {
+        return $this->getParameter('clientId');
+    }
+
+    /**
+     * @param string $secret
+     */
+    public function setSecret(string $secret): void
+    {
+        $this->setParameter('secret', $secret);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSecret(): ?string
+    {
+        return $this->getParameter('secret');
     }
 
     //
@@ -41,11 +87,11 @@ class RestGateway extends AbstractGateway
      *
      * @link https://developer.paypal.com/docs/api/#create-a-payment
      * @param array $parameters
-     * @return \Omnipay\PayPal\Message\RestPurchaseRequest
+     * @return RestPurchaseRequest|AbstractRequest
      */
     public function purchase(array $parameters = array())
     {
-        return $this->createRequest('\Omnipay\PayPal\Message\RestPurchaseRequest', $parameters);
+        return $this->createRequest(RestPurchaseRequest::class, $parameters);
     }
 
 
@@ -54,11 +100,11 @@ class RestGateway extends AbstractGateway
      *
      * @link https://developer.paypal.com/docs/api/#execute-an-approved-paypal-payment
      * @param array $parameters
-     * @return Message\AbstractRestRequest
+     * @return RestCompletePurchaseRequest|AbstractRequest
      */
     public function completePurchase(array $parameters = array())
     {
-        return $this->createRequest('\Omnipay\PayPal\Message\RestCompletePurchaseRequest', $parameters);
+        return $this->createRequest(RestCompletePurchaseRequest::class, $parameters);
     }
 
     /**
@@ -70,11 +116,11 @@ class RestGateway extends AbstractGateway
      *
      * @link https://developer.paypal.com/docs/api/#sale-transactions
      * @param array $parameters
-     * @return \Omnipay\PayPal\Message\RestRefundRequest
+     * @return RestRefundRequest|AbstractRequest
      */
     public function refund(array $parameters = array())
     {
-        return $this->createRequest('\Omnipay\PayPal\Message\RestRefundRequest', $parameters);
+        return $this->createRequest(RestRefundRequest::class, $parameters);
     }
 
 }
