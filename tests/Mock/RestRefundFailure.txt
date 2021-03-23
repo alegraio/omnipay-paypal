@@ -1,0 +1,25 @@
+HTTP/1.1 422 Unprocessable Entity
+Server: Nginx/1.1
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Paypal-Debug-Id: acaf32c0e9f23
+Date: Tue, 23 Mar 2021 11:34:23 GMT
+Content-Type: application/json
+Content-Length: 1196
+
+{
+    "name": "UNPROCESSABLE_ENTITY",
+    "message": "The requested action could not be performed, semantically incorrect, or failed business validation.",
+    "debug_id": "b68e56c6710f7",
+    "details": [
+        {
+            "issue": "CAPTURE_FULLY_REFUNDED",
+            "description": "The capture has already been fully refunded"
+        }
+    ],
+    "links": [
+        {
+            "href": "https://developer.paypal.com/docs/api/payments/v2/#error-CAPTURE_FULLY_REFUNDED",
+            "rel": "information_link"
+        }
+    ]
+}

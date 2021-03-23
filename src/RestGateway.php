@@ -39,34 +39,22 @@ class RestGateway extends AbstractGateway
         );
     }
 
-    /**
-     * @param string $clientId
-     */
-    public function setClientId(string $clientId): void
+    public function setClientId(string $clientId)
     {
-        $this->setParameter('clientId', $clientId);
+        return $this->setParameter('clientId', $clientId);
     }
 
-    /**
-     * @return string|null
-     */
-    public function getClientId(): ?string
+    public function getClientId()
     {
         return $this->getParameter('clientId');
     }
 
-    /**
-     * @param string $secret
-     */
-    public function setSecret(string $secret): void
+    public function setSecret(string $secret)
     {
-        $this->setParameter('secret', $secret);
+        return $this->setParameter('secret', $secret);
     }
 
-    /**
-     * @return string|null
-     */
-    public function getSecret(): ?string
+    public function getSecret()
     {
         return $this->getParameter('secret');
     }

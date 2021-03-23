@@ -88,22 +88,21 @@ class RestGatewayTest extends GatewayTestCase
     public function testRefund()
     {
         $params = [
-            'capture_id' => 'abc123',
-            'amount' => 2.00,
+            'capture_id' => '2AT93684J53804025',
+            'amount' => 6.10,
             'currency' => 'USD',
         ];
         $request = $this->gateway->refund($params);
 
         /** @var RestResponse $response */
         /*$response = $request->send();
-        $response->isSuccessful();
-        $response->getData();*/
+        var_dump($response->isSuccessful(), $response->getData());*/
 
 
         self::assertInstanceOf(RestRefundRequest::class, $request);
-        self::assertSame('abc123', $request->getCaptureId());
+        self::assertSame('2AT93684J53804025', $request->getCaptureId());
         $endPoint = $request->getEndpoint();
-        self::assertSame('https://api.sandbox.paypal.com/v2/payments/captures/abc123/refund', $endPoint);
+        self::assertSame('https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025/refund', $endPoint);
         $data = $request->getData();
         self::assertNotEmpty($data);
     }

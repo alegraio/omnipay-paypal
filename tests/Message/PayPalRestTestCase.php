@@ -22,12 +22,12 @@ class PayPalRestTestCase extends TestCase
         return $this->provideMergedParams($params);
     }
 
-    protected function getRefundParams(): array
+    protected function getRestRefundParams(): array
     {
         $params = [
-            'orderRef' => 'alegra5fb3d705f0cf0',
-            'orderAmount' => '250',
-            'amount' => '50'
+            'capture_id' => '2AT93684J53804025',
+            'amount' => 6.10,
+            'currency' => 'USD',
         ];
 
         return $this->provideMergedParams($params);
