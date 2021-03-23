@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\PayPal;
+namespace Omnipay\PayPalRest;
 
 class Mask
 {

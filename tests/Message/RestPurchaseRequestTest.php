@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\PayPal\Message;
+namespace OmnipayTest\PayPalRest\Message;
 
 use Omnipay\Common\CreditCard;
 use Omnipay\Tests\TestCase;

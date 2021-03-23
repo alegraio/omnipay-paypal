@@ -4,11 +4,11 @@
  * PayPal Abstract REST Request
  */
 
-namespace Omnipay\PayPal\Message;
+namespace Omnipay\PayPalRest\Message;
 
 use Omnipay\Common\Exception\InvalidResponseException;
 use Omnipay\Common\Message\ResponseInterface;
-use Omnipay\PayPal\Mask;
+use Omnipay\PayPalRest\Mask;
 
 
 abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest implements RequestInterface

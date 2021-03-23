@@ -15,8 +15,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Omnipay\\PayPal\\" : "src/",
-            "OmnipayTest\\PayPal\\": "tests/"
+            "Omnipay\\PayPalRest\\" : "src/",
+            "OmnipayTest\\PayPalRest\\": "tests/"
         }
     },
     "require": {

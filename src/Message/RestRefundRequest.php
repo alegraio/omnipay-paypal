@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\PayPal\Message;
+namespace Omnipay\PayPalRest\Message;
 
 use Omnipay\Common\Exception\InvalidRequestException;
 

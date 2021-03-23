@@ -1,11 +1,11 @@
 <?php
 
-namespace OmnipayTest\PayPal;
+namespace OmnipayTest\PayPalRest;
 
-use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
-use Omnipay\PayPal\Message\RestRefundRequest;
-use Omnipay\PayPal\Message\RestResponse;
-use Omnipay\PayPal\RestGateway;
+use Omnipay\PayPalRest\Message\RestCompletePurchaseRequest;
+use Omnipay\PayPalRest\Message\RestRefundRequest;
+use Omnipay\PayPalRest\Message\RestResponse;
+use Omnipay\PayPalRest\RestGateway;
 use Omnipay\Tests\GatewayTestCase;
 
 class RestGatewayTest extends GatewayTestCase
