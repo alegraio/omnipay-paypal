@@ -3,13 +3,13 @@
  * PayPal REST API
  */
 
-namespace Omnipay\PayPalRest;
+namespace Omnipay\PayPal;
 
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\Message\AbstractRequest;
-use Omnipay\PayPalRest\Message\RestCompletePurchaseRequest;
-use Omnipay\PayPalRest\Message\RestPurchaseRequest;
-use Omnipay\PayPalRest\Message\RestRefundRequest;
+use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
+use Omnipay\PayPal\Message\RestPurchaseRequest;
+use Omnipay\PayPal\Message\RestRefundRequest;
 
 /**
  * @method \Omnipay\Common\Message\RequestInterface authorize(array $options = array())

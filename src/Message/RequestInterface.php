@@ -1,6 +1,6 @@
 <?php
 
-namespace Omnipay\PayPalRest\Message;
+namespace Omnipay\PayPal\Message;
 
 interface RequestInterface
 {

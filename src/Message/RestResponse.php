@@ -4,7 +4,7 @@
  * PayPal REST Response
  */
 
-namespace Omnipay\PayPalRest\Message;
+namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
