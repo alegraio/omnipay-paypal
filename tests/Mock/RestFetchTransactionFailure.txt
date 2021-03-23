@@ -1,0 +1,27 @@
+
+HTTP/1.1 404 Not Found
+Server: Nginx/1.1
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Paypal-Debug-Id: 429ecd77b7888
+Date: Tue, 23 Mar 2021 18:14:13 GMT
+Content-Type: application/json
+Content-Length: 385
+
+{
+    "name": "RESOURCE_NOT_FOUND",
+    "details": [
+        {
+            "issue": "INVALID_RESOURCE_ID",
+            "description": "Specified resource ID does not exist. Please check the resource ID and try again."
+        }
+    ],
+    "message": "The specified resource does not exist.",
+    "debug_id": "429ecd77b7888",
+    "links": [
+        {
+            "href": "https://developer.paypal.com/docs/api/orders/v2/#error-INVALID_RESOURCE_ID",
+            "rel": "information_link",
+            "method": "GET"
+        }
+    ]
+}

@@ -1,0 +1,193 @@
+HTTP/1.1 200 Created
+Server: Nginx/1.1
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Paypal-Debug-Id: 86588fdca98f2
+Date: Tue, 23 Mar 2021 15:50:18 GMT
+Content-Type: application/json
+Content-Length: 926
+
+{
+    "id": "12D69357WS489910T",
+    "intent": "CAPTURE",
+    "status": "COMPLETED",
+    "purchase_units": [
+        {
+            "reference_id": "default",
+            "amount": {
+                "currency_code": "USD",
+                "value": "6.10",
+                "breakdown": {
+                    "item_total": {
+                        "currency_code": "USD",
+                        "value": "6.10"
+                    }
+                }
+            },
+            "payee": {
+                "email_address": "osman.cevik-facilitator@alegradigital.com",
+                "merchant_id": "FHSMP7S6QV7G8"
+            },
+            "description": "",
+            "invoice_id": "696969",
+            "soft_descriptor": "PAYPAL *TESTFACILIT",
+            "items": [
+                {
+                    "name": "product1",
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": "1.20"
+                    },
+                    "quantity": "1",
+                    "description": "desc1"
+                },
+                {
+                    "name": "product2",
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": "1.40"
+                    },
+                    "quantity": "2",
+                    "description": "desc2"
+                },
+                {
+                    "name": "product3",
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": "0.70"
+                    },
+                    "quantity": "3",
+                    "description": "desc3"
+                }
+            ],
+            "shipping": {
+                "name": {
+                    "full_name": "test buyer"
+                },
+                "address": {
+                    "address_line_1": "1 Main St",
+                    "admin_area_2": "San Jose",
+                    "admin_area_1": "CA",
+                    "postal_code": "95131",
+                    "country_code": "US"
+                }
+            },
+            "payments": {
+                "captures": [
+                    {
+                        "id": "2AT93684J53804025",
+                        "status": "REFUNDED",
+                        "amount": {
+                            "currency_code": "USD",
+                            "value": "6.10"
+                        },
+                        "final_capture": true,
+                        "seller_protection": {
+                            "status": "ELIGIBLE",
+                            "dispute_categories": [
+                                "ITEM_NOT_RECEIVED",
+                                "UNAUTHORIZED_TRANSACTION"
+                            ]
+                        },
+                        "seller_receivable_breakdown": {
+                            "gross_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            },
+                            "paypal_fee": {
+                                "currency_code": "USD",
+                                "value": "0.48"
+                            },
+                            "net_amount": {
+                                "currency_code": "USD",
+                                "value": "5.62"
+                            }
+                        },
+                        "invoice_id": "696969",
+                        "links": [
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025",
+                                "rel": "self",
+                                "method": "GET"
+                            },
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025/refund",
+                                "rel": "refund",
+                                "method": "POST"
+                            },
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T",
+                                "rel": "up",
+                                "method": "GET"
+                            }
+                        ],
+                        "create_time": "2021-03-23T12:19:36Z",
+                        "update_time": "2021-03-23T13:11:02Z"
+                    }
+                ],
+                "refunds": [
+                    {
+                        "id": "92949498FT2398734",
+                        "amount": {
+                            "currency_code": "USD",
+                            "value": "6.10"
+                        },
+                        "seller_payable_breakdown": {
+                            "gross_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            },
+                            "paypal_fee": {
+                                "currency_code": "USD",
+                                "value": "0.00"
+                            },
+                            "net_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            },
+                            "total_refunded_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            }
+                        },
+                        "invoice_id": "696969",
+                        "status": "COMPLETED",
+                        "links": [
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/payments/refunds/92949498FT2398734",
+                                "rel": "self",
+                                "method": "GET"
+                            },
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025",
+                                "rel": "up",
+                                "method": "GET"
+                            }
+                        ],
+                        "create_time": "2021-03-23T06:11:02-07:00",
+                        "update_time": "2021-03-23T06:11:02-07:00"
+                    }
+                ]
+            }
+        }
+    ],
+    "payer": {
+        "name": {
+            "given_name": "test",
+            "surname": "buyer"
+        },
+        "email_address": "osman.cevik-buyer@alegradigital.com",
+        "payer_id": "XH4SSF9L7SDLQ",
+        "address": {
+            "country_code": "US"
+        }
+    },
+    "create_time": "2021-03-23T11:34:23Z",
+    "update_time": "2021-03-23T13:11:02Z",
+    "links": [
+        {
+            "href": "https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T",
+            "rel": "self",
+            "method": "GET"
+        }
+    ]
+}
