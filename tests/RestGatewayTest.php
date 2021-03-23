@@ -76,14 +76,13 @@ class RestGatewayTest extends GatewayTestCase
 
         /** @var RestResponse $response */
         /*$response = $request->send();
-        $response->isSuccessful();
-        $response->getData();*/
+        var_dump($response->isSuccessful(), $response->getData());*/
 
 
         self::assertInstanceOf(RestCompletePurchaseRequest::class, $request);
         self::assertSame('12D69357WS489910T', $request->getOrderId());
         $endPoint = $request->getEndpoint();
-        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/12345678/capture', $endPoint);
+        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T/capture', $endPoint);
     }
 
     public function testRefund()

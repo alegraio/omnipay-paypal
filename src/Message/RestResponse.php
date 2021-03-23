@@ -31,10 +31,10 @@ class RestResponse extends AbstractResponse
     public function getTransactionReference(): ?string
     {
         // This is usually correct for payments, authorizations, etc
-        if (!empty($this->data['transactions']) && !empty($this->data['transactions'][0]['related_resources'])) {
-            foreach (array('capture', 'authorization') as $type) {
-                if (!empty($this->data['transactions'][0]['related_resources'][0][$type])) {
-                    return $this->data['transactions'][0]['related_resources'][0][$type]['id'];
+        if (!empty($this->data['purchase_units']) && !empty($this->data['purchase_units'][0]['payments'])) {
+            foreach (array('captures', 'authorization') as $type) {
+                if (!empty($this->data['purchase_units'][0]['payments'][$type])) {
+                    return $this->data['purchase_units'][0]['payments'][$type][0]['id'];
                 }
             }
         }

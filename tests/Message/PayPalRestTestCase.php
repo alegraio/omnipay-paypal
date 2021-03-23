@@ -33,7 +33,7 @@ class PayPalRestTestCase extends TestCase
         return $this->provideMergedParams($params);
     }
 
-    protected function getCompletePurchaseParams(): array
+    protected function getRestCompletePurchaseParams(): array
     {
         $params = [
             'orderId' => '12D69357WS489910T',

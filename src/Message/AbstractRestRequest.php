@@ -191,7 +191,11 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
             $requestUrl = $this->getEndpoint() . '?' . http_build_query($data);
             $body = null;
         } else {
-            $body = $this->toJSON($data);
+            if (empty($body)) {
+                $body = null;
+            } else {
+                $body = $this->toJSON($data);
+            }
             $requestUrl = $this->getEndpoint();
         }
 

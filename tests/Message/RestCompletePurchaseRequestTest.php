@@ -1,37 +1,45 @@
 <?php
 
+namespace OmnipayTest\PayPal\Message;
 
-namespace Omnipay\PayPal\Message;
+use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
 
-
-use Omnipay\Tests\TestCase;
-
-class RestCompletePurchaseRequestTest extends TestCase
+class RestCompletePurchaseRequestTest extends PayPalRestTestCase
 {
-    /**
-     * @var RestCompletePurchaseRequest
-     */
+    /** @var RestCompletePurchaseRequest */
     private $request;
 
-
-    public function setUp()
+    public function setUp(): void
     {
-        parent::setUp();
-
-        $client = $this->getHttpClient();
-
-        $request = $this->getHttpRequest();
-        $this->request = new RestCompletePurchaseRequest($client, $request);
-        $this->request->initialize(array());
+        $this->request = new RestCompletePurchaseRequest($this->getHttpClient(), $this->getHttpRequest());
+        $this->request->initialize($this->getRestCompletePurchaseParams());
     }
 
-    public function testGetData()
+    public function testEndpoint(): void
     {
-        $this->request->setTransactionReference('abc123');
-        $this->request->setPayerId('Payer12345');
+        $orderId = $this->request->getOrderId();
+        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/' . $orderId . '/capture', $this->request->getEndpoint());
+    }
 
-        $data = $this->request->getData();
+    public function testSendSuccess(): void
+    {
+        $this->setMockHttpResponse('RestCompletePurchaseSuccess.txt');
+        $response = $this->request->send();
 
-        $this->assertSame('Payer12345', $data['payer_id']);
+        self::assertTrue($response->isSuccessful());
+        self::assertFalse($response->isRedirect());
+        self::assertSame('2AT93684J53804025', $response->getTransactionReference());
+    }
+
+    public function testSendError(): void
+    {
+        $this->setMockHttpResponse('RestCompletePurchaseFailure.txt');
+        $response = $this->request->send();
+
+        self::assertFalse($response->isSuccessful());
+        self::assertNull($response->getTransactionReference());
+        self::assertSame(422, $response->getCode());
+        self::assertSame('The requested action could not be performed, semantically incorrect, or failed business validation.',
+            $response->getMessage());
     }
 }
