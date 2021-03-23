@@ -3,6 +3,7 @@
 namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Message\RequestInterface;
 
 class RestRefundRequest extends AbstractRestRequest
 {
@@ -35,6 +36,11 @@ class RestRefundRequest extends AbstractRestRequest
         }
 
         throw new \RuntimeException('Amount can not be smaller than zero');
+    }
+
+    public function getResponseObj(RequestInterface $request, $data, $statusCode = 200)
+    {
+        return new RestRefundResponse($request, $data, $statusCode);
     }
 
     public function getSensitiveData(): array

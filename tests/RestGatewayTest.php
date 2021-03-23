@@ -51,11 +51,11 @@ class RestGatewayTest extends GatewayTestCase
             'description' => '',
             'amount' => 6.1,
             'currency' => 'USD',
-            'orderId' => '12345678',
+            'orderId' => '696969', // External Order Id
             'items' => $items,
             'returnUrl' => 'https://return.paypaltest.com?op=return',
             'cancelUrl' => 'https://return.paypaltest.com?op=cancel',
-            'referrerCode' => 'trialOrder1'
+            'referrerCode' => 'trialOrder2'
         ];
         $request = $this->gateway->purchase($params);
 
@@ -70,7 +70,7 @@ class RestGatewayTest extends GatewayTestCase
     public function testCompletePurchase()
     {
         $params = [
-            'orderId' => '12345678',
+            'orderId' => '12D69357WS489910T', // PayPal Order Id
         ];
         $request = $this->gateway->completePurchase($params);
 
@@ -81,7 +81,7 @@ class RestGatewayTest extends GatewayTestCase
 
 
         self::assertInstanceOf(RestCompletePurchaseRequest::class, $request);
-        self::assertSame('12345678', $request->getOrderId());
+        self::assertSame('12D69357WS489910T', $request->getOrderId());
         $endPoint = $request->getEndpoint();
         self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/12345678/capture', $endPoint);
     }

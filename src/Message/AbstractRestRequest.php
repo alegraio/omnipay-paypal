@@ -279,7 +279,7 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
 
     protected function createResponse($data, $statusCode)
     {
-        $response = new RestResponse($this, $data, $statusCode);
+        $response = $this->getResponseObj($this, $data, $statusCode);
         $requestParams = $this->getRequestParams();
         $response->setServiceRequestParams($requestParams);
         $this->response = $response;

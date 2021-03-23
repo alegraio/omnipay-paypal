@@ -1,12 +1,86 @@
 HTTP/1.1 201 Created
-Server: Apache-Coyote/1.1
-PROXY_SERVER_INFO: host=slcsbjava2.slc.paypal.com;threadId=1534
-Paypal-Debug-Id: 98cbd3ab19dfe
-SERVER_INFO: paymentsplatformserv:v1.payments.payment&CalThreadId=129&TopLevelTxnStartTime=146fc9074ec&Host=slcsbjm3.slc.paypal.com&pid=15797
-CORRELATION-ID: 98cbd3ab19dfe
-Content-Language: *
-Date: Thu, 03 Jul 2014 14:11:10 GMT
+Server: Nginx/1.1
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Paypal-Debug-Id: acaf32c0e9f23
+Date: Tue, 23 Mar 2021 11:34:23 GMT
 Content-Type: application/json
-Content-Length: 1243
+Content-Length: 1196
 
-{"id":"PAY-6RT04683U7444573DKO2WI6A","create_time":"2014-07-03T14:11:04Z","update_time":"2014-07-03T14:11:10Z","state":"approved","intent":"sale","payer":{"payment_method":"credit_card","funding_instruments":[{"credit_card":{"type":"mastercard","number":"xxxxxxxxxxxx5559","expire_month":"12","expire_year":"2018","first_name":"Betsy","last_name":"Buyer"}}]},"transactions":[{"amount":{"total":"7.47","currency":"USD","details":{"subtotal":"7.47"}},"description":"This is the payment transaction description.","related_resources":[{"sale":{"id":"44E89981F8714392Y","create_time":"2014-07-03T14:11:04Z","update_time":"2014-07-03T14:11:10Z","state":"completed","amount":{"total":"7.47","currency":"USD"},"parent_payment":"PAY-6RT04683U7444573DKO2WI6A","links":[{"href":"https://api.sandbox.paypal.com/v1/payments/sale/44E89981F8714392Y","rel":"self","method":"GET"},{"href":"https://api.sandbox.paypal.com/v1/payments/sale/44E89981F8714392Y/refund","rel":"refund","method":"POST"},{"href":"https://api.sandbox.paypal.com/v1/payments/payment/PAY-6RT04683U7444573DKO2WI6A","rel":"parent_payment","method":"GET"}]}}]}],"links":[{"href":"https://api.sandbox.paypal.com/v1/payments/payment/PAY-6RT04683U7444573DKO2WI6A","rel":"self","method":"GET"}]}
+{
+    "id": "12D69357WS489910T",
+    "intent": "CAPTURE",
+    "status": "CREATED",
+    "purchase_units": [
+        {
+            "reference_id": "default",
+            "amount": {
+                "currency_code": "USD",
+                "value": "6.10",
+                "breakdown": {
+                    "item_total": {
+                        "currency_code": "USD",
+                        "value": "6.10"
+                    }
+                }
+            },
+            "payee": {
+                "email_address": "osman.cevik-facilitator@alegradigital.com",
+                "merchant_id": "FHSMP7S6QV7G8"
+            },
+            "description": "",
+            "invoice_id": "696969",
+            "items": [
+                {
+                    "name": "product1",
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": "1.20"
+                    },
+                    "quantity": "1",
+                    "description": "desc1"
+                },
+                {
+                    "name": "product2",
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": "1.40"
+                    },
+                    "quantity": "2",
+                    "description": "desc2"
+                },
+                {
+                    "name": "product3",
+                    "unit_amount": {
+                        "currency_code": "USD",
+                        "value": "0.70"
+                    },
+                    "quantity": "3",
+                    "description": "desc3"
+                }
+            ]
+        }
+    ],
+    "create_time": "2021-03-23T11:34:23Z",
+    "links": [
+        {
+            "href": "https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T",
+            "rel": "self",
+            "method": "GET"
+        },
+        {
+            "href": "https://www.sandbox.paypal.com/checkoutnow?token=12D69357WS489910T",
+            "rel": "approve",
+            "method": "GET"
+        },
+        {
+            "href": "https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T",
+            "rel": "update",
+            "method": "PATCH"
+        },
+        {
+            "href": "https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T/capture",
+            "rel": "capture",
+            "method": "POST"
+        }
+    ]
+}

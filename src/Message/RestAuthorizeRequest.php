@@ -5,6 +5,7 @@ namespace Omnipay\PayPal\Message;
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Item;
 use Omnipay\Common\ItemBag;
+use Omnipay\Common\Message\RequestInterface;
 
 class RestAuthorizeRequest extends AbstractRestRequest
 {
@@ -73,7 +74,13 @@ class RestAuthorizeRequest extends AbstractRestRequest
         return $desc ?? $id ?? '';
     }
 
-    protected function getEndpoint()
+
+    public function getResponseObj(RequestInterface $request, $data, $statusCode = 200)
+    {
+        return new RestAuthorizeResponse($request, $data, $statusCode);
+    }
+
+    public function getEndpoint()
     {
         return parent::getEndpoint() . '/checkout/orders';
     }

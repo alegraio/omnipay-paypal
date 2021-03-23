@@ -6,6 +6,13 @@ use Omnipay\Common\AbstractGateway;
 
 /**
  * PayPal Pro Class
+ * @method \Omnipay\Common\Message\RequestInterface completeAuthorize(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface completePurchase(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface void(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface createCard(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface updateCard(array $options = array())
+ * @method \Omnipay\Common\Message\RequestInterface deleteCard(array $options = array())
+ * @method \Omnipay\Common\Message\NotificationInterface acceptNotification(array $options = array())
  */
 class ProGateway extends AbstractGateway
 {

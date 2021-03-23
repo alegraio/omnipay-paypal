@@ -3,6 +3,7 @@
 namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Message\RequestInterface;
 
 class RestCompletePurchaseRequest extends AbstractRestRequest
 {
@@ -19,6 +20,11 @@ class RestCompletePurchaseRequest extends AbstractRestRequest
     public function getEndpoint(): string
     {
         return parent::getEndpoint() . '/checkout/orders/' . $this->getOrderId() . '/capture';
+    }
+
+    public function getResponseObj(RequestInterface $request, $data, $statusCode = 200)
+    {
+        return new RestCompletePurchaseResponse($request, $data, $statusCode);
     }
 
     public function getSensitiveData(): array
