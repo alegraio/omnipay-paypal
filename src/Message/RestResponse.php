@@ -68,6 +68,11 @@ class RestResponse extends AbstractResponse
         $this->serviceRequestParams = $serviceRequestParams;
     }
 
+    public function getServiceRequestParams()
+    {
+        return $this->serviceRequestParams;
+    }
+
     public function getCode()
     {
         return $this->statusCode;
