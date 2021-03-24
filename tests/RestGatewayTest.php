@@ -3,6 +3,7 @@
 namespace OmnipayTest\PayPal;
 
 use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
+use Omnipay\PayPal\Message\RestFetchTransactionRequest;
 use Omnipay\PayPal\Message\RestRefundRequest;
 use Omnipay\PayPal\Message\RestResponse;
 use Omnipay\PayPal\RestGateway;
@@ -105,5 +106,23 @@ class RestGatewayTest extends GatewayTestCase
         self::assertSame('https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025/refund', $endPoint);
         $data = $request->getData();
         self::assertNotEmpty($data);
+    }
+
+    public function testFetchTransaction()
+    {
+        $params = [
+            'orderId' => '12D69357WS489910T', // PayPal Order Id
+        ];
+
+        $request = $this->gateway->fetchTransaction($params);
+        /** @var RestResponse $response */
+        /*$response = $request->send();
+        var_dump($response->isSuccessful(), $response->getData());*/
+
+        self::assertInstanceOf(RestFetchTransactionRequest::class, $request);
+        self::assertSame('12D69357WS489910T', $request->getOrderId());
+        $endPoint = $request->getEndpoint();
+        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders' . '/12D69357WS489910T', $endPoint);
+
     }
 }

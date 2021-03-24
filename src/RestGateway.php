@@ -20,7 +20,6 @@ use Omnipay\PayPal\Message\RestFetchTransactionRequest;
  * @method \Omnipay\Common\Message\RequestInterface createCard(array $options = array())
  * @method \Omnipay\Common\Message\RequestInterface updateCard(array $options = array())
  * @method \Omnipay\Common\Message\RequestInterface deleteCard(array $options = array())
- * @method \Omnipay\Common\Message\RequestInterface fetchTransaction(array $options = [])
  * @method \Omnipay\Common\Message\NotificationInterface acceptNotification(array $options = array())
  */
 class RestGateway extends AbstractGateway

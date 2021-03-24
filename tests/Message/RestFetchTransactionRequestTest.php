@@ -2,7 +2,6 @@
 
 namespace OmnipayTest\PayPal\Message;
 
-use OmnipayTest\PayPal\Message\PayPalRestTestCase;
 use Omnipay\PayPal\Message\RestFetchTransactionRequest;
 
 
@@ -14,7 +13,7 @@ class RestFetchTransactionRequestTest extends PayPalRestTestCase
     public function setUp(): void
     {
         $this->request = new RestFetchTransactionRequest($this->getHttpClient(), $this->getHttpRequest());
-        $this->request->initialize($this->getRestCompletePurchaseParams());
+        $this->request->initialize($this->getRestFetchTransactionParams());
     }
 
     public function testEndpoint(): void

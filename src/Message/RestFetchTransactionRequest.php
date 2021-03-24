@@ -44,6 +44,6 @@ class RestFetchTransactionRequest extends AbstractRestRequest
 
     public function getProcessType(): string
     {
-        return 'CAPTURE';
+        return 'FETCH';
     }
 }

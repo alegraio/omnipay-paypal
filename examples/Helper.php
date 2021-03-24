@@ -38,6 +38,15 @@ class Helper
         return $this->provideMergedParams($params);
     }
 
+    public function getFetchTransactionParams(): array
+    {
+        $params = [
+            'orderId' => '4LS370685E717483T'
+        ];
+
+        return $this->provideMergedParams($params);
+    }
+
     private function getDefaultOptions(): array
     {
         return [
