@@ -42,6 +42,15 @@ class PayPalRestTestCase extends TestCase
         return $this->provideMergedParams($params);
     }
 
+    protected function getRestFetchTransactionParams(): array
+    {
+        $params = [
+            'orderId' => '12D69357WS489910T',
+        ];
+
+        return $this->provideMergedParams($params);
+    }
+
     private function getDefaultOptions(): array
     {
         return [

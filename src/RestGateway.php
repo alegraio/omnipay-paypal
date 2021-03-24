@@ -10,6 +10,7 @@ use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
 use Omnipay\PayPal\Message\RestPurchaseRequest;
 use Omnipay\PayPal\Message\RestRefundRequest;
+use Omnipay\PayPal\Message\RestFetchTransactionRequest;
 
 /**
  * @method \Omnipay\Common\Message\RequestInterface authorize(array $options = array())
@@ -109,6 +110,23 @@ class RestGateway extends AbstractGateway
     public function refund(array $parameters = array())
     {
         return $this->createRequest(RestRefundRequest::class, $parameters);
+    }
+
+
+    /**
+     * Fetch a Sale Transaction
+     *
+     * To get details about completed payments (sale transaction) created by a payment request
+     * or to refund a direct sale transaction, PayPal provides the /sale resource and related
+     * sub-resources.
+     *
+     * @link https://developer.paypal.com/docs/api/#sale-transactions
+     * @param array $parameters
+     * @return RestFetchTransactionRequest|AbstractRequest
+     */
+    public function fetchTransaction(array $parameters = array())
+    {
+        return $this->createRequest(RestFetchTransactionRequest::class, $parameters);
     }
 
 }
