@@ -84,7 +84,7 @@ abstract class RestResponse extends \Omnipay\Common\Message\AbstractResponse imp
      */
     public function getRedirectUrl(): ?string
     {
-        if ($this->isRedirect()) {
+        if ($this->isRedirect() && isset($this->data['links']) && is_array($this->data['links'])) {
             foreach($this->data['links'] as $link){
                 if($link['rel']==="approve"){
                     return $link['href'];
@@ -95,8 +95,19 @@ abstract class RestResponse extends \Omnipay\Common\Message\AbstractResponse imp
         return null;
     }
 
+    /**
+     * @return string
+     */
     public function getRedirectMethod(): string
     {
         return 'GET';
+    }
+
+    /**
+     * @return null
+     */
+    public function getRedirectData()
+    {
+        return null;
     }
 }
