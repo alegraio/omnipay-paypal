@@ -8,11 +8,12 @@ namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
+use Omnipay\Common\Message\RedirectResponseInterface;
 
 /**
  * PayPal REST Response
  */
-class RestResponse extends AbstractResponse
+abstract class RestResponse extends \Omnipay\Common\Message\AbstractResponse implements RedirectResponseInterface
 {
     protected $statusCode;
     private $serviceRequestParams = [];
@@ -76,5 +77,26 @@ class RestResponse extends AbstractResponse
     public function getCode()
     {
         return $this->statusCode;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRedirectUrl(): ?string
+    {
+        if ($this->isRedirect()) {
+            foreach($this->data['links'] as $link){
+                if($link['rel']==="approve"){
+                    return $link['href'];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public function getRedirectMethod(): string
+    {
+        return 'GET';
     }
 }
