@@ -30,7 +30,7 @@ class RestRefundRequest extends AbstractRestRequest
                     'currency_code' => $this->getCurrency(),
                     'value'    => $this->getAmount(),
                 ),
-                "invoice_id"    => $this->getTransactionId(),
+                "invoice_id"    => $this->getOrderId(),
                 'note_to_payer' => $this->getDescription(),
             );
         }
