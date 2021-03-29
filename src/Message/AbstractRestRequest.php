@@ -199,17 +199,22 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
             $requestUrl = $this->getEndpoint();
         }
 
+        $headerParams = array(
+                            'Accept'         => 'application/json',
+                            'Authorization'  => $this->getAuthorization(),
+                            'Content-type'   => 'application/json',
+                            'Prefer'         => 'return=representation'
+                        );
+
+        if(!empty($this->getReferrerCode())){
+            $headerParams = array_merge($headerParams,array('PayPal-Partner-Attribution-Id' => $this->getReferrerCode()));
+        }
+
         try {
             $httpResponse = $this->httpClient->request(
                 $this->getHttpMethod(),
                 $requestUrl,
-                array(
-                    'Accept'                        => 'application/json',
-                    'Authorization'                 => $this->getAuthorization(),
-                    'Content-type'                  => 'application/json',
-                    'PayPal-Partner-Attribution-Id' => $this->getReferrerCode(),
-                    'Prefer'                        => 'return=representation'
-                ),
+                $headerParams,
                 $body
             );
             // Empty response body should be parsed also as and empty array
