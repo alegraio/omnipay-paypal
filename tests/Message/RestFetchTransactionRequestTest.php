@@ -1,31 +1,46 @@
 <?php
 
-namespace Omnipay\PayPal\Message;
+namespace OmnipayTest\PayPal\Message;
 
-use Omnipay\Tests\TestCase;
+use Omnipay\PayPal\Message\RestFetchTransactionRequest;
 
-class RestFetchTransactionRequestTest extends TestCase
+
+class RestFetchTransactionRequestTest extends PayPalRestTestCase
 {
-    /** @var \Omnipay\PayPal\Message\RestFetchTransactionRequest */
+    /** @var RestFetchTransactionRequest */
     private $request;
 
-    public function setUp()
+    public function setUp(): void
     {
-        $client = $this->getHttpClient();
-        $request = $this->getHttpRequest();
-        $this->request = new RestFetchTransactionRequest($client, $request);
+        $this->request = new RestFetchTransactionRequest($this->getHttpClient(), $this->getHttpRequest());
+        $this->request->initialize($this->getRestFetchTransactionParams());
     }
 
-    public function testGetData()
+    public function testEndpoint(): void
     {
-        $this->request->setTransactionReference('ABC-123');
-        $data = $this->request->getData();
-        $this->assertEquals(array(), $data);
+        $orderId = $this->request->getOrderId();
+        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/' . $orderId, $this->request->getEndpoint());
     }
 
-    public function testEndpoint()
+    public function testSendSuccess(): void
     {
-        $this->request->setTransactionReference('ABC-123');
-        $this->assertStringEndsWith('/payments/sale/ABC-123', $this->request->getEndpoint());
+        $this->setMockHttpResponse('RestFetchTransactionSuccess.txt');
+        $response = $this->request->send();
+
+        self::assertTrue($response->isSuccessful());
+        self::assertFalse($response->isRedirect());
+        self::assertSame('2AT93684J53804025', $response->getTransactionReference());
+    }
+
+    public function testSendError(): void
+    {
+        $this->setMockHttpResponse('RestFetchTransactionFailure.txt');
+
+        $response = $this->request->send();
+        
+        self::assertFalse($response->isSuccessful());
+        self::assertNull($response->getTransactionReference());
+        self::assertSame(404, $response->getCode());
+        self::assertSame('The specified resource does not exist.',$response->getMessage());
     }
 }

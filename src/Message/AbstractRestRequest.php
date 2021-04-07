@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PayPal Abstract REST Request
  */
@@ -6,51 +7,20 @@
 namespace Omnipay\PayPal\Message;
 
 use Omnipay\Common\Exception\InvalidResponseException;
+use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\PayPal\Mask;
 
-/**
- * PayPal Abstract REST Request
- *
- * This class forms the base class for PayPal REST requests via the PayPal REST APIs.
- *
- * A complete REST operation is formed by combining an HTTP method (or “verb”) with
- * the full URI to the resource you’re addressing. For example, here is the operation
- * to create a new payment:
- *
- * <code>
- * POST https://api.paypal.com/v1/payments/payment
- * </code>
- *
- * To create a complete request, combine the operation with the appropriate HTTP headers
- * and any required JSON payload.
- *
- * @link https://developer.paypal.com/docs/api/
- * @link https://devtools-paypal.com/integrationwizard/
- * @link http://paypal.github.io/sdk/
- * @see Omnipay\PayPal\RestGateway
- */
-abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest
+
+abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractRequest implements RequestInterface
 {
-    const API_VERSION = 'v1';
+    const API_VERSION = 'v2';
 
     /**
-     * Sandbox Endpoint URL
-     *
-     * The PayPal REST APIs are supported in two environments. Use the Sandbox environment
-     * for testing purposes, then move to the live environment for production processing.
-     * When testing, generate an access token with your test credentials to make calls to
-     * the Sandbox URIs. When you’re set to go live, use the live credentials assigned to
-     * your app to generate a new access token to be used with the live URIs.
-     *
      * @var string URL
      */
     protected $testEndpoint = 'https://api.sandbox.paypal.com';
 
     /**
-     * Live Endpoint URL
-     *
-     * When you’re set to go live, use the live credentials assigned to
-     * your app to generate a new access token to be used with the live URIs.
-     *
      * @var string URL
      */
     protected $liveEndpoint = 'https://api.paypal.com';
@@ -68,13 +38,15 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      * @var bool
      */
     protected $negativeAmountAllowed = true;
-    
+
+    private $requestParams = [];
+
     /**
-     * @return string
+     * @return string|null
      */
-    public function getReferrerCode()
+    public function getReferrerCode(): ?string
     {
-        return $this->referrerCode;
+        return $this->getParameter('referrerCode');
     }
 
     /**
@@ -82,38 +54,97 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      */
     public function setReferrerCode($referrerCode)
     {
-        $this->referrerCode = $referrerCode;
+        $this->setParameter('referrerCode', $referrerCode);
     }
 
+    /**
+     * @return string
+     */
     public function getClientId()
     {
         return $this->getParameter('clientId');
     }
 
+    /**
+     * @param string $value
+     */
     public function setClientId($value)
     {
         return $this->setParameter('clientId', $value);
     }
 
+    /**
+     * @return string
+     */
     public function getSecret()
     {
         return $this->getParameter('secret');
     }
 
+    /**
+     * @param string $value
+     */
     public function setSecret($value)
     {
         return $this->setParameter('secret', $value);
     }
 
+    /**
+     * @return string|null
+     */
+    public function getOrderId(): ?string
+    {
+        return $this->getParameter('orderId');
+    }
+
+    /**
+     * @param string|null $orderId
+     * @return AbstractRestRequest
+     */
+    public function setOrderId(string $orderId=null)
+    {
+        return $this->setParameter('orderId', $orderId);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAutoToken()
+    {
+        return $this->getParameter('autoToken') ?: true;
+    }
+
+    /**
+     * @param bool $value
+     */
+    public function setAutoToken($value)
+    {
+        return $this->setParameter('autoToken', $value);
+    }
+
+
+    /**
+     * @return string
+     */
     public function getToken()
     {
+        $autoToken = $this->getParameter('autoToken') ?: true;
+        if ($autoToken) {
+            $clientid = $this->getParameter("clientId");
+            $secret   = $this->getParameter("secret");
+            $this->setParameter("token", base64_encode($clientid . ":" . $secret));
+        }
         return $this->getParameter('token');
     }
 
+    /**
+     * @param string $value
+     */
     public function setToken($value)
     {
         return $this->setParameter('token', $value);
     }
+
 
     public function getPayerId()
     {
@@ -126,10 +157,6 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
     }
 
     /**
-     * Get HTTP Method.
-     *
-     * This is nearly always POST but can be over-ridden in sub classes.
-     *
      * @return string
      */
     protected function getHttpMethod()
@@ -143,39 +170,56 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
         return $base . '/' . self::API_VERSION;
     }
 
+    public function getAuthorization()
+    {
+        if ($this->getAutoToken()) {
+            return 'Basic ' . $this->getToken();
+        }
+        return 'Bearer ' . $this->getToken();
+    }
+
+
+    /**
+     * @param mixed $data
+     * @return ResponseInterface|RestResponse
+     * @throws InvalidResponseException
+     */
     public function sendData($data)
     {
 
-        // Guzzle HTTP Client createRequest does funny things when a GET request
-        // has attached data, so don't send the data if the method is GET.
-        if ($this->getHttpMethod() == 'GET') {
+        if ($this->getHttpMethod() === 'GET') {
             $requestUrl = $this->getEndpoint() . '?' . http_build_query($data);
             $body = null;
         } else {
-            $body = $this->toJSON($data);
+            if (empty($data)) {
+                $body = null;
+            } else {
+                $body = $this->toJSON($data);
+            }
             $requestUrl = $this->getEndpoint();
         }
 
-        // Might be useful to have some debug code here, PayPal especially can be
-        // a bit fussy about data formats and ordering.  Perhaps hook to whatever
-        // logging engine is being used.
-        // echo "Data == " . json_encode($data) . "\n";
+        $headerParams = array(
+                            'Accept'         => 'application/json',
+                            'Authorization'  => $this->getAuthorization(),
+                            'Content-type'   => 'application/json',
+                            'Prefer'         => 'return=representation'
+                        );
+
+        if(!empty($this->getReferrerCode())){
+            $headerParams = array_merge($headerParams,array('PayPal-Partner-Attribution-Id' => $this->getReferrerCode()));
+        }
 
         try {
             $httpResponse = $this->httpClient->request(
                 $this->getHttpMethod(),
-                $this->getEndpoint(),
-                array(
-                    'Accept' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->getToken(),
-                    'Content-type' => 'application/json',
-                    'PayPal-Partner-Attribution-Id' => $this->getReferrerCode(),
-                ),
+                $requestUrl,
+                $headerParams,
                 $body
             );
             // Empty response body should be parsed also as and empty array
-            $body = (string) $httpResponse->getBody()->getContents();
-            $jsonToArrayResponse = !empty($body) ? json_decode($body, true) : array();
+            $response = (string) $httpResponse->getBody()->getContents();
+            $jsonToArrayResponse = !empty($response) ? json_decode($response, true, 512, JSON_THROW_ON_ERROR) : array();
             return $this->response = $this->createResponse($jsonToArrayResponse, $httpResponse->getStatusCode());
         } catch (\Exception $e) {
             throw new InvalidResponseException(
@@ -195,19 +239,59 @@ abstract class AbstractRestRequest extends \Omnipay\Common\Message\AbstractReque
      * @param int $options http://php.net/manual/en/json.constants.php
      * @return string
      */
-    public function toJSON($data, $options = 0)
+    public function toJSON($data, $options = 0): string
     {
         // Because of PHP Version 5.3, we cannot use JSON_UNESCAPED_SLASHES option
         // Instead we would use the str_replace command for now.
         // TODO: Replace this code with return json_encode($this->toArray(), $options | 64); once we support PHP >= 5.4
-        if (version_compare(phpversion(), '5.4.0', '>=') === true) {
-            return json_encode($data, $options | 64);
+        if (PHP_VERSION_ID >= 50400 === true) {
+            return json_encode($data, JSON_THROW_ON_ERROR | $options | 64);
         }
-        return str_replace('\\/', '/', json_encode($data, $options));
+        return str_replace('\\/', '/', json_encode($data, JSON_THROW_ON_ERROR | $options));
+    }
+
+    /**
+     * @param array $data
+     */
+    protected function setRequestParams(array $data): void
+    {
+        array_walk_recursive($data, [$this, 'updateValue']);
+        $this->requestParams = $data;
+    }
+
+    /**
+     * @param string $data
+     * @param string $key
+     */
+    protected function updateValue(string &$data, string $key): void
+    {
+        $sensitiveData = $this->getSensitiveData();
+
+        if (\in_array($key, $sensitiveData, true)) {
+            $data = Mask::mask($data);
+        }
+
+    }
+
+    /**
+     * @return array
+     */
+    protected function getRequestParams(): array
+    {
+        return [
+            'url' => $this->getEndPoint(),
+            'type' => $this->getProcessType(),
+            'data' => $this->requestParams,
+            'method' => $this->getHttpMethod()
+        ];
     }
 
     protected function createResponse($data, $statusCode)
     {
-        return $this->response = new RestResponse($this, $data, $statusCode);
+        $response = $this->getResponseObj($this, $data, $statusCode);
+        $requestParams = $this->getRequestParams();
+        $response->setServiceRequestParams($requestParams);
+        $this->response = $response;
+        return $this->response;
     }
 }

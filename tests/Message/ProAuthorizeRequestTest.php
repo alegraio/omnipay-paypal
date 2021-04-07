@@ -1,8 +1,9 @@
 <?php
 
-namespace Omnipay\PayPal\Message;
+namespace OmnipayTest\PayPal\Message;
 
 use Omnipay\Common\CreditCard;
+use Omnipay\PayPal\Message\ProAuthorizeRequest;
 use Omnipay\Tests\TestCase;
 
 class ProAuthorizeRequestTest extends TestCase
@@ -39,29 +40,29 @@ class ProAuthorizeRequestTest extends TestCase
 
         $data = $this->request->getData();
 
-        $this->assertSame('DoDirectPayment', $data['METHOD']);
-        $this->assertSame('Authorization', $data['PAYMENTACTION']);
-        $this->assertSame('10.00', $data['AMT']);
-        $this->assertSame('USD', $data['CURRENCYCODE']);
-        $this->assertSame('abc123', $data['INVNUM']);
-        $this->assertSame('Sheep', $data['DESC']);
-        $this->assertSame('127.0.0.1', $data['IPADDRESS']);
+        self::assertSame('DoDirectPayment', $data['METHOD']);
+        self::assertSame('Authorization', $data['PAYMENTACTION']);
+        self::assertSame('10.00', $data['AMT']);
+        self::assertSame('USD', $data['CURRENCYCODE']);
+        self::assertSame('abc123', $data['INVNUM']);
+        self::assertSame('Sheep', $data['DESC']);
+        self::assertSame('127.0.0.1', $data['IPADDRESS']);
 
-        $this->assertSame($card->getNumber(), $data['ACCT']);
-        $this->assertSame($card->getBrand(), $data['CREDITCARDTYPE']);
-        $this->assertSame($card->getExpiryDate('mY'), $data['EXPDATE']);
-        $this->assertSame('012000', $data['STARTDATE']);
-        $this->assertSame($card->getCvv(), $data['CVV2']);
-        $this->assertSame($card->getIssueNumber(), $data['ISSUENUMBER']);
+        self::assertSame($card->getNumber(), $data['ACCT']);
+        self::assertSame($card->getBrand(), $data['CREDITCARDTYPE']);
+        self::assertSame($card->getExpiryDate('mY'), $data['EXPDATE']);
+        self::assertSame('012000', $data['STARTDATE']);
+        self::assertSame($card->getCvv(), $data['CVV2']);
+        self::assertSame($card->getIssueNumber(), $data['ISSUENUMBER']);
 
-        $this->assertSame($card->getFirstName(), $data['FIRSTNAME']);
-        $this->assertSame($card->getLastName(), $data['LASTNAME']);
-        $this->assertSame($card->getEmail(), $data['EMAIL']);
-        $this->assertSame($card->getAddress1(), $data['STREET']);
-        $this->assertSame($card->getAddress2(), $data['STREET2']);
-        $this->assertSame($card->getCity(), $data['CITY']);
-        $this->assertSame($card->getState(), $data['STATE']);
-        $this->assertSame($card->getPostcode(), $data['ZIP']);
-        $this->assertSame($card->getCountry(), $data['COUNTRYCODE']);
+        self::assertSame($card->getFirstName(), $data['FIRSTNAME']);
+        self::assertSame($card->getLastName(), $data['LASTNAME']);
+        self::assertSame($card->getEmail(), $data['EMAIL']);
+        self::assertSame($card->getAddress1(), $data['STREET']);
+        self::assertSame($card->getAddress2(), $data['STREET2']);
+        self::assertSame($card->getCity(), $data['CITY']);
+        self::assertSame($card->getState(), $data['STATE']);
+        self::assertSame($card->getPostcode(), $data['ZIP']);
+        self::assertSame($card->getCountry(), $data['COUNTRYCODE']);
     }
 }

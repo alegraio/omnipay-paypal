@@ -2,38 +2,38 @@
 
 namespace OmnipayTest\PayPal\Message;
 
-use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
+use Omnipay\PayPal\Message\RestRefundRequest;
 
-class RestCompletePurchaseRequestTest extends PayPalRestTestCase
+class RestRefundRequestTest extends PayPalRestTestCase
 {
-    /** @var RestCompletePurchaseRequest */
+    /** @var RestRefundRequest */
     private $request;
 
     public function setUp(): void
     {
-        $this->request = new RestCompletePurchaseRequest($this->getHttpClient(), $this->getHttpRequest());
-        $this->request->initialize($this->getRestCompletePurchaseParams());
+        $this->request = new RestRefundRequest($this->getHttpClient(), $this->getHttpRequest());
+        $this->request->initialize($this->getRestRefundParams());
     }
 
     public function testEndpoint(): void
     {
-        $orderId = $this->request->getOrderId();
-        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/' . $orderId . '/capture', $this->request->getEndpoint());
+        $captureId = $this->request->getCaptureId();
+        self::assertSame('https://api.sandbox.paypal.com/v2/payments/captures/' . $captureId . '/refund', $this->request->getEndpoint());
     }
 
     public function testSendSuccess(): void
     {
-        $this->setMockHttpResponse('RestCompletePurchaseSuccess.txt');
+        $this->setMockHttpResponse('RestRefundSuccess.txt');
         $response = $this->request->send();
 
         self::assertTrue($response->isSuccessful());
         self::assertFalse($response->isRedirect());
-        self::assertSame('2AT93684J53804025', $response->getTransactionReference());
+        self::assertSame('92949498FT2398734', $response->getTransactionReference());
     }
 
     public function testSendError(): void
     {
-        $this->setMockHttpResponse('RestCompletePurchaseFailure.txt');
+        $this->setMockHttpResponse('RestRefundFailure.txt');
         $response = $this->request->send();
 
         self::assertFalse($response->isSuccessful());

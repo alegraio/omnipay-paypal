@@ -1,56 +1,49 @@
 <?php
-/**
- * PayPal REST Fetch Transaction Request
- */
 
 namespace Omnipay\PayPal\Message;
 
-/**
- * PayPal REST Fetch Transaction Request
- *
- * To get details about completed payments (sale transaction) created by a payment request
- * or to refund a direct sale transaction, PayPal provides the /sale resource and related
- * sub-resources.
- *
- * Example -- note this example assumes that the purchase has been successful
- * and that the transaction ID returned from the purchase is held in $sale_id.
- * See RestPurchaseRequest for the first part of this example transaction:
- *
- * <code>
- *   // Fetch the transaction so that details can be found for refund, etc.
- *   $transaction = $gateway->fetchTransaction();
- *   $transaction->setTransactionReference($sale_id);
- *   $response = $transaction->send();
- *   $data = $response->getData();
- *   echo "Gateway fetchTransaction response data == " . print_r($data, true) . "\n";
- * </code>
- *
- * @see RestPurchaseRequest
- * @link https://developer.paypal.com/docs/api/#sale-transactions
- */
+use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Message\RequestInterface;
+
 class RestFetchTransactionRequest extends AbstractRestRequest
 {
-    public function getData()
+    /**
+     * @return array
+     * @throws InvalidRequestException
+     */
+    public function getData(): array
     {
-        $this->validate('transactionReference');
-        return array();
+        $this->validate('orderId');
+        return [];
     }
 
-    /**
-     * Get HTTP Method.
-     *
-     * The HTTP method for fetchTransaction requests must be GET.
-     * Using POST results in an error 500 from PayPal.
-     *
-     * @return string
-     */
     protected function getHttpMethod()
     {
         return 'GET';
     }
 
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
-        return parent::getEndpoint() . '/payments/sale/' . $this->getTransactionReference();
+        return parent::getEndpoint() . '/checkout/orders/' . $this->getOrderId();
+    }
+
+    public function getResponseObj(RequestInterface $request, $data, $statusCode = 200)
+    {
+        return new RestFetchTransactionResponse($request, $data, $statusCode);
+    }
+
+    public function getSensitiveData(): array
+    {
+        return [];
+    }
+
+    public function getProcessName(): string
+    {
+        return 'FetchTransaction';
+    }
+
+    public function getProcessType(): string
+    {
+        return 'FETCH';
     }
 }

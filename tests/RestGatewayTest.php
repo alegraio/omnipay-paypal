@@ -1,11 +1,12 @@
 <?php
 
-namespace Omnipay\PayPal;
+namespace OmnipayTest\PayPal;
 
-use Omnipay\Common\CreditCard;
-use Omnipay\PayPal\Message\RestCreateWebhookRequest;
-use Omnipay\PayPal\Message\RestListWebhooksRequest;
-use Omnipay\PayPal\Message\RestVerifyWebhookSignatureRequest;
+use Omnipay\PayPal\Message\RestCompletePurchaseRequest;
+use Omnipay\PayPal\Message\RestFetchTransactionRequest;
+use Omnipay\PayPal\Message\RestRefundRequest;
+use Omnipay\PayPal\Message\RestResponse;
+use Omnipay\PayPal\RestGateway;
 use Omnipay\Tests\GatewayTestCase;
 
 class RestGatewayTest extends GatewayTestCase
@@ -13,332 +14,115 @@ class RestGatewayTest extends GatewayTestCase
     /** @var RestGateway */
     public $gateway;
 
-    /** @var array */
-    public $options;
-
-    /** @var array */
-    public $subscription_options;
-
     public function setUp()
     {
         parent::setUp();
-
         $this->gateway = new RestGateway($this->getHttpClient(), $this->getHttpRequest());
-        $this->gateway->setToken('TEST-TOKEN-123');
-        $this->gateway->setTokenExpires(time() + 600);
-
-        $this->options = array(
-            'amount' => '10.00',
-            'card' => new CreditCard(array(
-                'firstName' => 'Example',
-                'lastName' => 'User',
-                'number' => '4111111111111111',
-                'expiryMonth' => '12',
-                'expiryYear' => date('Y'),
-                'cvv' => '123',
-            )),
-        );
-
-        $this->subscription_options = array(
-            'transactionReference'  => 'ABC-1234',
-            'description'           => 'Description goes here',
-        );
+        $this->gateway->setClientId('');
+        $this->gateway->setSecret('');
+        $this->gateway->setTestMode(true);
     }
 
-    public function testBearerToken()
+    public function testPurchase(): void
     {
-        $this->gateway->setToken('');
-        $this->setMockHttpResponse('RestTokenSuccess.txt');
+        $items = [
+            [
+                'name' => 'product1',
+                'description' => 'desc1',
+                'quantity' => 1,
+                'price' => 1.2,
+                'currency' => 'USD'
+            ],
+            [
+                'name' => 'product2',
+                'description' => 'desc2',
+                'quantity' => 2,
+                'price' => 1.4,
+                'currency' => 'USD'
+            ],
+            [
+                'name' => 'product3',
+                'description' => 'desc3',
+                'quantity' => 3,
+                'price' => 0.7,
+                'currency' => 'USD'
+            ]
+        ];
+        $params = [
+            'description' => '',
+            'amount' => 6.1,
+            'currency' => 'USD',
+            'orderId' => '696969', // External Order Id
+            'items' => $items,
+            'returnUrl' => 'https://return.paypaltest.com?op=return',
+            'cancelUrl' => 'https://return.paypaltest.com?op=cancel',
+            'referrerCode' => 'trialOrder2'
+        ];
+        $request = $this->gateway->purchase($params);
 
-        $this->assertFalse($this->gateway->hasToken());
-        $this->assertEquals('A015GQlKQ6uCRzLHSGRliANi59BHw6egNVKEWRnxvTwvLr0', $this->gateway->getToken()); // triggers request
-        $this->assertEquals(time() + 28800, $this->gateway->getTokenExpires());
-        $this->assertTrue($this->gateway->hasToken());
+        /*$response = $request->send();
+        $isSuccessful = $response->isSuccessful();
+        $data = $response->getData();
+        var_dump($isSuccessful, $data);*/
+
+        self::assertEquals('CAPTURE', $request->getData()['intent']);
     }
 
-    public function testBearerTokenReused()
+    public function testCompletePurchase()
     {
-        $this->setMockHttpResponse('RestTokenSuccess.txt');
-        $this->gateway->setToken('MYTOKEN');
-        $this->gateway->setTokenExpires(time() + 60);
+        $params = [
+            'orderId' => '12D69357WS489910T', // PayPal Order Id
+        ];
+        $request = $this->gateway->completePurchase($params);
 
-        $this->assertTrue($this->gateway->hasToken());
-        $this->assertEquals('MYTOKEN', $this->gateway->getToken());
-    }
+        /** @var RestResponse $response */
+        /*$response = $request->send();
+        var_dump($response->isSuccessful(), $response->getData());*/
 
-    public function testBearerTokenExpires()
-    {
-        $this->setMockHttpResponse('RestTokenSuccess.txt');
-        $this->gateway->setToken('MYTOKEN');
-        $this->gateway->setTokenExpires(time() - 60);
 
-        $this->assertFalse($this->gateway->hasToken());
-        $this->assertEquals('A015GQlKQ6uCRzLHSGRliANi59BHw6egNVKEWRnxvTwvLr0', $this->gateway->getToken());
-    }
-
-    public function testAuthorize()
-    {
-        $this->setMockHttpResponse('RestPurchaseSuccess.txt');
-
-        $response = $this->gateway->authorize($this->options)->send();
-
-        $this->assertTrue($response->isSuccessful());
-        $this->assertEquals('44E89981F8714392Y', $response->getTransactionReference());
-        $this->assertNull($response->getMessage());
-    }
-
-    public function testPurchase()
-    {
-        $this->setMockHttpResponse('RestPurchaseSuccess.txt');
-
-        $response = $this->gateway->purchase($this->options)->send();
-
-        $this->assertTrue($response->isSuccessful());
-        $this->assertEquals('44E89981F8714392Y', $response->getTransactionReference());
-        $this->assertNull($response->getMessage());
-    }
-
-    public function testCapture()
-    {
-        $request = $this->gateway->capture(array(
-            'transactionReference' => 'abc123',
-            'amount' => 10.00,
-            'currency' => 'AUD',
-        ));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestCaptureRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
+        self::assertInstanceOf(RestCompletePurchaseRequest::class, $request);
+        self::assertSame('12D69357WS489910T', $request->getOrderId());
         $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/authorization/abc123/capture', $endPoint);
-        $data = $request->getData();
-        $this->assertNotEmpty($data);
+        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T/capture', $endPoint);
     }
 
     public function testRefund()
     {
-        $request = $this->gateway->refund(array(
-            'transactionReference' => 'abc123',
-            'amount' => 10.00,
-            'currency' => 'AUD',
-        ));
+        $params = [
+            'capture_id' => '2AT93684J53804025',
+            'amount' => 6.10,
+            'currency' => 'USD',
+        ];
+        $request = $this->gateway->refund($params);
 
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestRefundRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
+        /** @var RestResponse $response */
+        /*$response = $request->send();
+        var_dump($response->isSuccessful(), $response->getData());*/
+
+
+        self::assertInstanceOf(RestRefundRequest::class, $request);
+        self::assertSame('2AT93684J53804025', $request->getCaptureId());
         $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/sale/abc123/refund', $endPoint);
+        self::assertSame('https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025/refund', $endPoint);
         $data = $request->getData();
-        $this->assertNotEmpty($data);
-    }
-
-    public function testFullRefund()
-    {
-        $request = $this->gateway->refund(array(
-            'transactionReference' => 'abc123',
-        ));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestRefundRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
-        $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/sale/abc123/refund', $endPoint);
-        $data = $request->getData();
-
-        // we're expecting an empty object here
-        $json = json_encode($data);
-        $this->assertEquals('{}', $json);
+        self::assertNotEmpty($data);
     }
 
     public function testFetchTransaction()
     {
-        $request = $this->gateway->fetchTransaction(array('transactionReference' => 'abc123'));
+        $params = [
+            'orderId' => '12D69357WS489910T', // PayPal Order Id
+        ];
 
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestFetchTransactionRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
-        $data = $request->getData();
-        $this->assertEmpty($data);
-    }
+        $request = $this->gateway->fetchTransaction($params);
+        /** @var RestResponse $response */
+        /*$response = $request->send();
+        var_dump($response->isSuccessful(), $response->getData());*/
 
-    public function testListPlan()
-    {
-        $request = $this->gateway->listPlan(array(
-            'page'         => 0,
-            'status'       => 'ACTIVE',
-            'pageSize'    => 10, //number of plans in a single page
-            'totalRequired'     => 'yes'
-        ));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestListPlanRequest', $request);
-        $this->assertSame(0, $request->getPage());
-        $this->assertSame('ACTIVE', $request->getStatus());
-        $this->assertSame(10, $request->getPageSize());
-        $this->assertSame('yes', $request->getTotalRequired());
-
+        self::assertInstanceOf(RestFetchTransactionRequest::class, $request);
+        self::assertSame('12D69357WS489910T', $request->getOrderId());
         $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/billing-plans', $endPoint);
-        $data = $request->getData();
-        $this->assertNotEmpty($data);
-    }
+        self::assertSame('https://api.sandbox.paypal.com/v2/checkout/orders' . '/12D69357WS489910T', $endPoint);
 
-    public function testFetchPurchase()
-    {
-        $request = $this->gateway->fetchPurchase(array('transactionReference' => 'abc123'));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestFetchPurchaseRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
-        $data = $request->getData();
-        $this->assertEmpty($data);
-    }
-
-    public function testListPurchase()
-    {
-        $request = $this->gateway->listPurchase(array(
-            'count'         => 15,
-            'startId'       => 'PAY123',
-            'startIndex'    => 1,
-            'startTime'     => '2015-09-07T00:00:00Z',
-            'endTime'       => '2015-09-08T00:00:00Z',
-        ));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestListPurchaseRequest', $request);
-        $this->assertSame(15, $request->getCount());
-        $this->assertSame('PAY123', $request->getStartId());
-        $this->assertSame(1, $request->getStartIndex());
-        $this->assertSame('2015-09-07T00:00:00Z', $request->getStartTime());
-        $this->assertSame('2015-09-08T00:00:00Z', $request->getEndTime());
-        $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/payment', $endPoint);
-        $data = $request->getData();
-        $this->assertNotEmpty($data);
-    }
-
-    public function testCreateCard()
-    {
-        $this->setMockHttpResponse('RestCreateCardSuccess.txt');
-
-        $response = $this->gateway->createCard($this->options)->send();
-
-        $this->assertTrue($response->isSuccessful());
-        $this->assertEquals('CARD-70E78145XN686604FKO3L6OQ', $response->getCardReference());
-        $this->assertNull($response->getMessage());
-    }
-
-    public function testCreateWebhook()
-    {
-        $request = $this->gateway->createWebhook([]);
-
-        $this->assertInstanceOf(RestCreateWebhookRequest::class, $request);
-        $this->assertSame('https://api.paypal.com/v1/notifications/webhooks', $request->getEndpoint());
-        $this->assertEquals(['event_types' => [], 'url' => null], $request->getData());
-    }
-
-    public function testPayWithSavedCard()
-    {
-        $this->setMockHttpResponse('RestCreateCardSuccess.txt');
-        $response = $this->gateway->createCard($this->options)->send();
-        $cardRef = $response->getCardReference();
-
-        $this->setMockHttpResponse('RestPurchaseSuccess.txt');
-        $response = $this->gateway->purchase(array('amount'=>'10.00', 'cardReference'=>$cardRef))->send();
-        $this->assertTrue($response->isSuccessful());
-        $this->assertEquals('44E89981F8714392Y', $response->getTransactionReference());
-        $this->assertNull($response->getMessage());
-    }
-
-    // Incomplete generic tests for subscription payments
-
-    public function testCompleteSubscription()
-    {
-        $this->setMockHttpResponse('RestExecuteSubscriptionSuccess.txt');
-        $response = $this->gateway->completeSubscription($this->subscription_options)->send();
-        $this->assertTrue($response->isSuccessful());
-        $this->assertNull($response->getMessage());
-
-        $this->assertEquals('I-0LN988D3JACS', $response->getTransactionReference());
-    }
-
-    public function testCancelSubscription()
-    {
-        $this->setMockHttpResponse('RestGenericSubscriptionSuccess.txt');
-        $response = $this->gateway->cancelSubscription($this->subscription_options)->send();
-        $this->assertTrue($response->isSuccessful());
-        $this->assertNull($response->getMessage());
-    }
-
-    public function testSuspendSubscription()
-    {
-        $this->setMockHttpResponse('RestGenericSubscriptionSuccess.txt');
-        $response = $this->gateway->suspendSubscription($this->subscription_options)->send();
-        $this->assertTrue($response->isSuccessful());
-        $this->assertNull($response->getMessage());
-    }
-
-    public function testReactivateSubscription()
-    {
-        $this->setMockHttpResponse('RestGenericSubscriptionSuccess.txt');
-        $response = $this->gateway->reactivateSubscription($this->subscription_options)->send();
-        $this->assertTrue($response->isSuccessful());
-        $this->assertNull($response->getMessage());
-    }
-
-    public function testRefundCapture()
-    {
-        $request = $this->gateway->refundCapture(array(
-            'transactionReference' => 'abc123'
-        ));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestRefundCaptureRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
-        $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/capture/abc123/refund', $endPoint);
-
-        $request->setAmount('15.99');
-        $request->setCurrency('BRL');
-        $request->setDescription('Test Description');
-        $data = $request->getData();
-        // we're expecting an empty object here
-        $json = json_encode($data);
-        $this->assertEquals('{"amount":{"currency":"BRL","total":"15.99"},"description":"Test Description"}', $json);
-    }
-
-    public function testVoid()
-    {
-        $request = $this->gateway->void(array(
-            'transactionReference' => 'abc123'
-        ));
-
-        $this->assertInstanceOf('\Omnipay\PayPal\Message\RestVoidRequest', $request);
-        $this->assertSame('abc123', $request->getTransactionReference());
-        $endPoint = $request->getEndpoint();
-        $this->assertSame('https://api.paypal.com/v1/payments/authorization/abc123/void', $endPoint);
-        $data = $request->getData();
-        $this->assertEmpty($data);
-    }
-
-    public function testListWebhooks()
-    {
-        $request = $this->gateway->listWebhooks([]);
-
-        $this->assertInstanceOf(RestListWebhooksRequest::class, $request);
-        $this->assertSame('https://api.paypal.com/v1/notifications/webhooks', $request->getEndpoint());
-        $this->assertEmpty($request->getData());
-    }
-
-    public function testVerifyWebhook()
-    {
-        $request = $this->gateway->verifyWebhookSignature([]);
-
-        $this->assertInstanceOf(RestVerifyWebhookSignatureRequest::class, $request);
-        $this->assertSame('https://api.paypal.com/v1/notifications/verify-webhook-signature', $request->getEndpoint());
-        $this->assertEquals(
-            [
-                'transmission_id' => null,
-                'auth_algo' => null,
-                'cert_url' => null,
-                'transmission_sig' => null,
-                'transmission_time' => null,
-                'webhook_event' => null,
-                'webhook_id' => null,
-            ],
-            $request->getData()
-        );
     }
 }

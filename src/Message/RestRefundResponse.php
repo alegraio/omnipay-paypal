@@ -4,12 +4,12 @@
 namespace Omnipay\PayPal\Message;
 
 
-class RestAuthorizeResponse extends RestResponse
+class RestRefundResponse extends RestResponse
 {
 
     public function isRedirect()
     {
-        return true;
+        return false;
     }
 
 }

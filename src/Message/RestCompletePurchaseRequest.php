@@ -1,71 +1,44 @@
 <?php
-/**
- * PayPal REST Complete Purchase Request
- */
 
 namespace Omnipay\PayPal\Message;
 
-/**
- * PayPal REST Complete Purchase Request
- *
- * Use this message to execute (complete) a PayPal payment that has been
- * approved by the payer. You can optionally update transaction information
- * when executing the payment by passing in one or more transactions.
- *
- * This call only works after a buyer has approved the payment using the
- * provided PayPal approval URL.
- *
- * ### Example
- *
- * The payer ID and the payment ID returned from the callback after the purchase
- * will be passed to the return URL as GET parameters payerId and paymentId
- * respectively.
- *
- * See RestPurchaseRequest for the first part of this example transaction:
- *
- * <code>
- *   $paymentId = $_GET['paymentId'];
- *   $payerId = $_GET['payerId'];
- *
- *   // Once the transaction has been approved, we need to complete it.
- *   $transaction = $gateway->completePurchase(array(
- *       'payer_id'             => $payerId,
- *       'transactionReference' => $paymentId,
- *   ));
- *   $response = $transaction->send();
- *   if ($response->isSuccessful()) {
- *       // The customer has successfully paid.
- *   } else {
- *       // There was an error returned by completePurchase().  You should
- *       // check the error code and message from PayPal, which may be something
- *       // like "card declined", etc.
- *   }
- * </code>
- *
- * @see RestPurchaseRequest
- * @link https://developer.paypal.com/docs/api/#execute-an-approved-paypal-payment
- */
+use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Message\RequestInterface;
+
 class RestCompletePurchaseRequest extends AbstractRestRequest
 {
     /**
-     * Get the raw data array for this message. The format of this varies from gateway to
-     * gateway, but will usually be either an associative array, or a SimpleXMLElement.
-     *
-     * @return mixed
+     * @return array
+     * @throws InvalidRequestException
      */
-    public function getData()
+    public function getData(): array
     {
-        $this->validate('transactionReference', 'payerId');
-
-        $data = array(
-            'payer_id' => $this->getPayerId()
-        );
-
-        return $data;
+        $this->validate('orderId');
+        return [];
     }
 
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
-        return parent::getEndpoint() . '/payments/payment/' . $this->getTransactionReference() . '/execute';
+        return parent::getEndpoint() . '/checkout/orders/' . $this->getOrderId() . '/capture';
+    }
+
+    public function getResponseObj(RequestInterface $request, $data, $statusCode = 200)
+    {
+        return new RestCompletePurchaseResponse($request, $data, $statusCode);
+    }
+
+    public function getSensitiveData(): array
+    {
+        return [];
+    }
+
+    public function getProcessName(): string
+    {
+        return 'CompletePurchase';
+    }
+
+    public function getProcessType(): string
+    {
+        return 'CAPTURE';
     }
 }

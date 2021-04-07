@@ -1,10 +1,10 @@
-HTTP/1.1 201 Created
+HTTP/1.1 200 Created
 Server: Nginx/1.1
 Cache-Control: max-age=0, no-cache, no-store, must-revalidate
-Paypal-Debug-Id: acaf32c0e9f23
-Date: Tue, 23 Mar 2021 11:34:23 GMT
+Paypal-Debug-Id: 86588fdca98f2
+Date: Tue, 23 Mar 2021 15:50:18 GMT
 Content-Type: application/json
-Content-Length: 1196
+Content-Length: 926
 
 {
     "id": "12D69357WS489910T",
@@ -20,22 +20,6 @@ Content-Length: 1196
                     "item_total": {
                         "currency_code": "USD",
                         "value": "6.10"
-                    },
-                    "shipping": {
-                        "currency_code": "USD",
-                        "value": "0.00"
-                    },
-                    "handling": {
-                        "currency_code": "USD",
-                        "value": "0.00"
-                    },
-                    "insurance": {
-                        "currency_code": "USD",
-                        "value": "0.00"
-                    },
-                    "shipping_discount": {
-                        "currency_code": "USD",
-                        "value": "0.00"
                     }
                 }
             },
@@ -43,7 +27,7 @@ Content-Length: 1196
                 "email_address": "osman.cevik-facilitator@alegradigital.com",
                 "merchant_id": "FHSMP7S6QV7G8"
             },
-            "description": "product1",
+            "description": "",
             "invoice_id": "696969",
             "soft_descriptor": "PAYPAL *TESTFACILIT",
             "items": [
@@ -52,10 +36,6 @@ Content-Length: 1196
                     "unit_amount": {
                         "currency_code": "USD",
                         "value": "1.20"
-                    },
-                    "tax": {
-                        "currency_code": "USD",
-                        "value": "0.00"
                     },
                     "quantity": "1",
                     "description": "desc1"
@@ -66,10 +46,6 @@ Content-Length: 1196
                         "currency_code": "USD",
                         "value": "1.40"
                     },
-                    "tax": {
-                        "currency_code": "USD",
-                        "value": "0.00"
-                    },
                     "quantity": "2",
                     "description": "desc2"
                 },
@@ -78,10 +54,6 @@ Content-Length: 1196
                     "unit_amount": {
                         "currency_code": "USD",
                         "value": "0.70"
-                    },
-                    "tax": {
-                        "currency_code": "USD",
-                        "value": "0.00"
                     },
                     "quantity": "3",
                     "description": "desc3"
@@ -103,7 +75,7 @@ Content-Length: 1196
                 "captures": [
                     {
                         "id": "2AT93684J53804025",
-                        "status": "COMPLETED",
+                        "status": "REFUNDED",
                         "amount": {
                             "currency_code": "USD",
                             "value": "6.10"
@@ -149,7 +121,50 @@ Content-Length: 1196
                             }
                         ],
                         "create_time": "2021-03-23T12:19:36Z",
-                        "update_time": "2021-03-23T12:19:36Z"
+                        "update_time": "2021-03-23T13:11:02Z"
+                    }
+                ],
+                "refunds": [
+                    {
+                        "id": "92949498FT2398734",
+                        "amount": {
+                            "currency_code": "USD",
+                            "value": "6.10"
+                        },
+                        "seller_payable_breakdown": {
+                            "gross_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            },
+                            "paypal_fee": {
+                                "currency_code": "USD",
+                                "value": "0.00"
+                            },
+                            "net_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            },
+                            "total_refunded_amount": {
+                                "currency_code": "USD",
+                                "value": "6.10"
+                            }
+                        },
+                        "invoice_id": "696969",
+                        "status": "COMPLETED",
+                        "links": [
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/payments/refunds/92949498FT2398734",
+                                "rel": "self",
+                                "method": "GET"
+                            },
+                            {
+                                "href": "https://api.sandbox.paypal.com/v2/payments/captures/2AT93684J53804025",
+                                "rel": "up",
+                                "method": "GET"
+                            }
+                        ],
+                        "create_time": "2021-03-23T06:11:02-07:00",
+                        "update_time": "2021-03-23T06:11:02-07:00"
                     }
                 ]
             }
@@ -167,7 +182,7 @@ Content-Length: 1196
         }
     },
     "create_time": "2021-03-23T11:34:23Z",
-    "update_time": "2021-03-23T12:19:36Z",
+    "update_time": "2021-03-23T13:11:02Z",
     "links": [
         {
             "href": "https://api.sandbox.paypal.com/v2/checkout/orders/12D69357WS489910T",
